@@ -160,6 +160,7 @@
 
         <footer class="mt-8 text-center text-xs text-gray-400">
             &copy; 2026 SMP Mumtaza &mdash; Sistem Informasi Hasil TKA
+            &middot; <a href="admin.html" class="hover:text-gray-600 underline">Admin</a>
         </footer>
     </main>
 
@@ -463,6 +464,13 @@
             const s = currentStudent;
             const fileName = 'Hasil_TKA_' + (s['Nama'] || '').replace(/\s+/g, '_') + '.pdf';
             try {
+                // record download
+                try {
+                    const logs = JSON.parse(localStorage.getItem('tka_downloads') || '[]');
+                    logs.push({ nisn: s['NISN'], nama: s['Nama'] || '', tgl: new Date().toISOString() });
+                    localStorage.setItem('tka_downloads', JSON.stringify(logs));
+                } catch(e) {}
+
                 const blob = await generatePDF(s);
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
