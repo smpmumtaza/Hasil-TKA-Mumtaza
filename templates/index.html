@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasil TKA - SMP Mumtaza</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <nav class="bg-primary-700 shadow-lg">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex h-16 items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                            <i class="fas fa-graduation-cap text-white text-lg"></i>
+                        </div>
+                        <div>
+                            <h1 class="text-lg font-bold text-white">SMP Mumtaza</h1>
+                            <p class="text-xs text-primary-100 -mt-1">Hasil Tes Kemampuan Akademik</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+            <div class="rounded-xl bg-white p-6 shadow-md sm:p-8">
+                <div class="mb-6 text-center">
+                    <h2 class="text-xl font-semibold text-gray-800">Cari Hasil TKA</h2>
+                    <p class="mt-1 text-sm text-gray-500">Masukkan NISN dan Tanggal Lahir untuk melihat hasil</p>
+                </div>
+
+                <form id="searchForm" class="space-y-4">
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div>
+                            <label for="nisn" class="block text-sm font-medium text-gray-700">NISN</label>
+                            <div class="relative mt-1">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <i class="fas fa-id-card text-gray-400"></i>
+                                </div>
+                                <input type="text" id="nisn" name="nisn" required
+                                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 pr-3 py-2.5 text-sm placeholder-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                    placeholder="Contoh: 3111120517" maxlength="20">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="date" class="block text-sm font-medium text-gray-700">Tanggal Lahir (ddmmyyyy)</label>
+                            <div class="relative mt-1">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <i class="fas fa-calendar text-gray-400"></i>
+                                </div>
+                                <input type="text" id="date" name="date" required
+                                    class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 pr-3 py-2.5 text-sm placeholder-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                    placeholder="Contoh: 27072011" maxlength="8" pattern="\d{8}" inputmode="numeric">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="searchBtn"
+                        class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60">
+                        <i class="fas fa-search"></i>
+                        Cari Data
+                    </button>
+                </form>
+
+                <div id="loading" class="mt-4 hidden text-center">
+                    <i class="fas fa-spinner fa-spin text-primary-600 text-xl"></i>
+                    <p class="mt-1 text-sm text-gray-500">Mencari data...</p>
+                </div>
+
+                <div id="errorMsg" class="mt-4 hidden rounded-lg bg-red-50 p-4 text-sm text-red-700">
+                    <i class="fas fa-exclamation-circle mr-1"></i>
+                    <span id="errorText">Data tidak ditemukan. Periksa kembali NISN dan Tanggal Lahir.</span>
+                </div>
+
+                <div id="resultCard" class="mt-6 hidden">
+                    <div class="rounded-lg border border-green-200 bg-green-50 p-4">
+                        <div class="flex items-center gap-2 text-green-700">
+                            <i class="fas fa-check-circle"></i>
+                            <span class="font-medium">Data ditemukan!</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 overflow-hidden rounded-lg border border-gray-200">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <tbody class="divide-y divide-gray-100">
+                                <tr>
+                                    <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-600 w-1/3">Nama</td>
+                                    <td class="px-4 py-3 text-gray-900" id="dispNama">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-600">NISN</td>
+                                    <td class="px-4 py-3 text-gray-900" id="dispNISN">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="whitespace-nowrap px-4 py-3 font-medium text-gray-600">Nomor Peserta</td>
+                                    <td class="px-4 py-3 text-gray-900" id="dispNoPeserta">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 overflow-hidden rounded-lg border border-gray-200">
+                        <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-gray-600">Nilai</span>
+                        </div>
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-500">Mata Pelajaran</th>
+                                    <th class="px-4 py-2 text-center text-xs font-semibold uppercase text-gray-500">Nilai</th>
+                                    <th class="px-4 py-2 text-center text-xs font-semibold uppercase text-gray-500">Predikat</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700">Matematika</td>
+                                    <td class="px-4 py-3 text-center font-semibold text-gray-900" id="dispMatScore">-</td>
+                                    <td class="px-4 py-3 text-center" id="dispMatRating">-</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 text-gray-700">Bahasa Indonesia</td>
+                                    <td class="px-4 py-3 text-center font-semibold text-gray-900" id="dispBindoScore">-</td>
+                                    <td class="px-4 py-3 text-center" id="dispBindoRating">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+                        <button id="previewBtn"
+                            class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                            <i class="fas fa-file-pdf"></i>
+                            Preview PDF
+                        </button>
+                        <button id="downloadBtn"
+                            class="flex flex-1 items-center justify-center gap-2 rounded-lg border border-primary-600 bg-white px-4 py-3 text-sm font-semibold text-primary-600 shadow-sm transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                            <i class="fas fa-download"></i>
+                            Download DOCX
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pdfPreview" class="mt-6 hidden">
+                <div class="rounded-xl bg-white p-4 shadow-md">
+                    <div class="mb-3 flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-gray-700"><i class="fas fa-file-pdf text-red-500 mr-1"></i> Preview PDF</h3>
+                        <button onclick="document.getElementById('pdfPreview').classList.add('hidden')"
+                            class="text-sm text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <iframe id="pdfFrame" class="w-full rounded-lg border border-gray-200" style="height: 70vh;" src=""></iframe>
+                </div>
+            </div>
+
+            <footer class="mt-8 text-center text-xs text-gray-400">
+                &copy; 2026 SMP Mumtaza &mdash; Sistem Informasi Hasil TKA
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        const searchForm = document.getElementById('searchForm');
+        const loading = document.getElementById('loading');
+        const errorMsg = document.getElementById('errorMsg');
+        const errorText = document.getElementById('errorText');
+        const resultCard = document.getElementById('resultCard');
+        const searchBtn = document.getElementById('searchBtn');
+        const previewBtn = document.getElementById('previewBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const pdfPreview = document.getElementById('pdfPreview');
+        const pdfFrame = document.getElementById('pdfFrame');
+
+        let currentNISN = '';
+        let currentDate = '';
+
+        searchForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMsg.classList.add('hidden');
+            resultCard.classList.add('hidden');
+            pdfPreview.classList.add('hidden');
+
+            const nisn = document.getElementById('nisn').value.trim();
+            const date = document.getElementById('date').value.trim();
+
+            if (!nisn || !date) return;
+
+            loading.classList.remove('hidden');
+            searchBtn.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('nisn', nisn);
+                formData.append('date', date);
+
+                const res = await fetch('/lookup', { method: 'POST', body: formData });
+                const json = await res.json();
+
+                if (json.found) {
+                    currentNISN = nisn;
+                    currentDate = date;
+                    const d = json.data;
+                    document.getElementById('dispNama').textContent = d.nama;
+                    document.getElementById('dispNISN').textContent = d.nisn;
+                    document.getElementById('dispNoPeserta').textContent = d.nomor_peserta;
+                    document.getElementById('dispMatScore').textContent = d.matematika_score;
+                    document.getElementById('dispMatRating').textContent = d.matematika_rating;
+                    document.getElementById('dispBindoScore').textContent = d.bindo_score;
+                    document.getElementById('dispBindoRating').textContent = d.bindo_rating;
+                    resultCard.classList.remove('hidden');
+                } else {
+                    errorText.textContent = 'Data tidak ditemukan. Periksa kembali NISN dan Tanggal Lahir.';
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorText.textContent = 'Terjadi kesalahan. Silakan coba lagi.';
+                errorMsg.classList.remove('hidden');
+            } finally {
+                loading.classList.add('hidden');
+                searchBtn.disabled = false;
+            }
+        });
+
+        previewBtn.addEventListener('click', async () => {
+            pdfPreview.classList.add('hidden');
+            previewBtn.disabled = true;
+            previewBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
+            try {
+                const formData = new FormData();
+                formData.append('nisn', currentNISN);
+                formData.append('date', currentDate);
+
+                const res = await fetch('/generate', { method: 'POST', body: formData });
+
+                if (!res.ok) throw new Error('Gagal generate PDF');
+
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                pdfFrame.src = url;
+                pdfPreview.classList.remove('hidden');
+            } catch (err) {
+                errorText.textContent = 'Gagal menghasilkan PDF. Silakan coba lagi.';
+                errorMsg.classList.remove('hidden');
+            } finally {
+                previewBtn.disabled = false;
+                previewBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Preview PDF';
+            }
+        });
+
+        downloadBtn.addEventListener('click', async () => {
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+
+            try {
+                const formData = new FormData();
+                formData.append('nisn', currentNISN);
+                formData.append('date', currentDate);
+
+                const res = await fetch('/generate', { method: 'POST', body: formData });
+                if (!res.ok) throw new Error('Gagal');
+
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'hasil_tka.docx';
+                a.click();
+            } catch (err) {
+                errorText.textContent = 'Gagal mengunduh. Silakan coba lagi.';
+                errorMsg.classList.remove('hidden');
+            } finally {
+                downloadBtn.disabled = false;
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download DOCX';
+            }
+        });
+    </script>
+</body>
+</html>
