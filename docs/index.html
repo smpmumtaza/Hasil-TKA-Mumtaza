@@ -20,24 +20,24 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .pdf-template { font-family: 'Times New Roman', Times, serif; }
-        .pdf-template .title { font-size: 14pt; font-weight: bold; text-align: center; }
-        .pdf-template .subtitle { font-size: 14pt; font-weight: bold; text-align: center; }
-        .pdf-template .info-field { font-size: 12pt; line-height: 1.8; }
-        .pdf-template .info-field .label { display: inline-block; width: 200px; }
-        .pdf-template .body-text { font-size: 12pt; text-align: justify; line-height: 1.5; }
-        .pdf-template .note-text { font-size: 12pt; text-align: justify; line-height: 1.5; }
-        .pdf-template .signature { font-size: 12pt; }
-        .pdf-template .signature-name { font-size: 12pt; font-weight: bold; }
-        .pdf-template .score-table { width: 100%; border-collapse: collapse; font-size: 12pt; margin: 0; }
-        .pdf-template .score-table th { border: 1px solid #000; padding: 6px 10px; font-weight: bold; text-align: center; }
-        .pdf-template .score-table td { border: 1px solid #000; padding: 6px 10px; text-align: center; }
-        .pdf-template .score-table td:first-child { text-align: center; }
-        .pdf-template .score-table td:nth-child(2) { text-align: left; }
-        .pdf-template .score-table td:last-child { text-align: center; }
-        .pdf-template .score-table th:nth-child(2) { text-align: center; }
+        .pdf-wrap { position: relative; width: 190mm; min-height: 277mm; margin: 0 auto; background: #fff; overflow: hidden; }
+        .pdf-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+        .pdf-content { position: relative; z-index: 1; padding: 18mm 22mm 15mm; font-family: 'Times New Roman', Times, serif; }
+        .pdf-content .title { font-size: 14pt; font-weight: bold; text-align: center; margin-bottom: 0; }
+        .pdf-content .subtitle { font-size: 14pt; font-weight: bold; text-align: center; margin-top: 2pt; }
+        .pdf-content .info-field { font-size: 12pt; line-height: 1.8; }
+        .pdf-content .info-field .lbl { display: inline-block; width: 200px; }
+        .pdf-content .body-text { font-size: 12pt; text-align: justify; line-height: 1.5; }
+        .pdf-content .note-text { font-size: 12pt; text-align: justify; line-height: 1.5; }
+        .pdf-content .score-table { width: 100%; border-collapse: collapse; font-size: 12pt; margin: 0; }
+        .pdf-content .score-table th { border: 1px solid #000; padding: 5px 8px; font-weight: bold; text-align: center; }
+        .pdf-content .score-table td { border: 1px solid #000; padding: 5px 8px; text-align: center; }
+        .pdf-content .score-table td:nth-child(2) { text-align: left; }
+        .pdf-content .score-table th:nth-child(2) { text-align: center; }
+        .pdf-content .sig-img { height: 28mm; display: block; margin: 4mm 0 2mm; }
         @media print {
-            .pdf-template { position: fixed; top: 0; left: 0; width: 210mm; padding: 25mm 25mm 20mm; }
+            .pdf-wrap { position: fixed; top: 0; left: 0; width: 210mm; min-height: 297mm; }
+            .pdf-content { padding: 20mm 25mm 18mm; }
         }
     </style>
 </head>
@@ -201,68 +201,73 @@
     </main>
 
     <div id="pdfTemplate" class="hidden">
-        <div class="pdf-template" style="width: 190mm; padding: 20mm 25mm; margin: 0 auto; background: #fff;">
-            <div style="height: 20mm;"></div>
-            <div class="title">HASIL TES KEMAMPUAN AKADEMIK</div>
-            <div class="subtitle">TAHUN PELAJARAN 2025/2026</div>
-            <div style="height: 8mm;"></div>
+        <div class="pdf-wrap">
+            <img class="pdf-bg" src="images/image1.jpg" alt="background">
+            <div class="pdf-content">
+                <div style="height: 26mm;"></div>
+                <div class="title">HASIL TES KEMAMPUAN AKADEMIK</div>
+                <div class="subtitle">TAHUN PELAJARAN 2025/2026</div>
+                <div style="height: 7mm;"></div>
 
-            <div class="info-field">
-                <span class="label">Nama</span> : <span id="pdfNama" style="font-weight:bold;"></span>
-            </div>
-            <div class="info-field">
-                <span class="label">Tempat dan Tanggal Lahir</span> : <span id="pdfTtl"></span>
-            </div>
-            <div class="info-field">
-                <span class="label">Nomor Induk Siswa Nasional</span> : <span id="pdfNISN"></span>
-            </div>
-            <div class="info-field" style="margin-bottom: 8mm;">
-                <span class="label">Nomor Peserta TKA</span> : <span id="pdfNoPeserta"></span>
-            </div>
+                <div class="info-field">
+                    <span class="lbl">Nama</span> : <span id="pdfNama" style="font-weight:bold;"></span>
+                </div>
+                <div class="info-field">
+                    <span class="lbl">Tempat dan Tanggal Lahir</span> : <span id="pdfTtl"></span>
+                </div>
+                <div class="info-field">
+                    <span class="lbl">Nomor Induk Siswa Nasional</span> : <span id="pdfNISN"></span>
+                </div>
+                <div class="info-field" style="margin-bottom: 7mm;">
+                    <span class="lbl">Nomor Peserta TKA</span> : <span id="pdfNoPeserta"></span>
+                </div>
 
-            <div class="body-text" style="margin-bottom: 8mm;">
-                Berdasarkan hasil verifikasi oleh pihak sekolah pada data resmi yang disampaikan oleh
-                <b>Dinas Pendidikan Kota Tangerang Selatan</b>, dengan ini kami sampaikan
-                <b>Hasil Tes Kemampuan Akademik (TKA)</b> sebagai berikut :
+                <div class="body-text" style="margin-bottom: 7mm;">
+                    Berdasarkan hasil verifikasi oleh pihak sekolah pada data resmi yang disampaikan oleh
+                    <b>Dinas Pendidikan Kota Tangerang Selatan</b>, dengan ini kami sampaikan
+                    <b>Hasil Tes Kemampuan Akademik (TKA)</b> sebagai berikut :
+                </div>
+
+                <table class="score-table" style="margin-bottom: 6mm;">
+                    <thead>
+                        <tr>
+                            <th style="width: 12%;">No.</th>
+                            <th style="width: 48%;">Mata Pelajaran</th>
+                            <th style="width: 18%;">Nilai</th>
+                            <th style="width: 22%;">Predikat</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1.</td>
+                            <td style="text-align:left;">Matematika</td>
+                            <td id="pdfMatScore" style="font-weight:bold;"></td>
+                            <td id="pdfMatRating" style="font-weight:bold;"></td>
+                        </tr>
+                        <tr>
+                            <td>2.</td>
+                            <td style="text-align:left;">Bahasa Indonesia</td>
+                            <td id="pdfBindoScore" style="font-weight:bold;"></td>
+                            <td id="pdfBindoRating" style="font-weight:bold;"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="note-text" style="margin-bottom: 8mm;">
+                    Catatan: Dokumen ini merupakan informasi sementara dari sekolah. Adapun
+                    <b>Sertifikat Hasil Tes Kemampuan Akademik (SHTKA)</b>
+                    akan disampaikan lebih lanjut.
+                </div>
+
+                <div>
+                    Tangerang Selatan, 26 Mei 2026<br>
+                    Kepala Sekolah,
+                </div>
+
+                <img class="sig-img" src="images/image2.jpg" alt="tanda tangan">
+
+                <div style="font-size: 12pt; font-weight: bold;">Khalimi, M.Pd</div>
             </div>
-
-            <table class="score-table" style="margin-bottom: 6mm;">
-                <thead>
-                    <tr>
-                        <th style="width: 12%;">No.</th>
-                        <th style="width: 48%;">Mata Pelajaran</th>
-                        <th style="width: 18%;">Nilai</th>
-                        <th style="width: 22%;">Predikat</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1.</td>
-                        <td style="text-align:left;">Matematika</td>
-                        <td id="pdfMatScore" style="font-weight:bold;"></td>
-                        <td id="pdfMatRating" style="font-weight:bold;"></td>
-                    </tr>
-                    <tr>
-                        <td>2.</td>
-                        <td style="text-align:left;">Bahasa Indonesia</td>
-                        <td id="pdfBindoScore" style="font-weight:bold;"></td>
-                        <td id="pdfBindoRating" style="font-weight:bold;"></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="note-text" style="margin-bottom: 10mm;">
-                Catatan: Dokumen ini merupakan informasi sementara dari sekolah. Adapun
-                <b>Sertifikat Hasil Tes Kemampuan Akademik (SHTKA)</b>
-                akan disampaikan lebih lanjut.
-            </div>
-
-            <div class="signature" style="margin-bottom: 30mm;">
-                Tangerang Selatan, 26 Mei 2026<br>
-                Kepala Sekolah,
-            </div>
-
-            <div class="signature-name">Khalimi, M.Pd</div>
         </div>
     </div>
 
@@ -407,6 +412,14 @@
             el.id = 'pdfClone-' + Date.now();
             document.body.appendChild(el);
 
+            const wrap = el.querySelector('.pdf-wrap');
+
+            // preload images
+            const imgs = wrap.querySelectorAll('img');
+            await Promise.all(Array.from(imgs).map(img =>
+                img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
+            ));
+
             try {
                 const blob = await html2pdf()
                     .set({
@@ -416,7 +429,7 @@
                         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
                     })
-                    .from(el.querySelector('.pdf-template'))
+                    .from(wrap)
                     .outputPdf('blob');
 
                 const url = URL.createObjectURL(blob);
