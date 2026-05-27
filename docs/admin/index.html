@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -130,6 +131,10 @@
         const ADMIN_USER = 'admin';
         const ADMIN_PASS = 'admin123';
 
+        const SUPABASE_URL = 'https://skiraowhzwtdcidnhply.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA';
+        const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         // ----- Login -----
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -138,7 +143,7 @@
             if (u === ADMIN_USER && p === ADMIN_PASS) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
-                renderDashboard();
+                renderDashboard().then();
             } else {
                 document.getElementById('loginErr').classList.remove('hidden');
             }
@@ -155,12 +160,23 @@
         // ----- Dashboard -----
         let histChart, pieChart, timeChart;
 
-        function getLogs() {
+        async function getLogs() {
+            // Try Supabase first
+            try {
+                const { data, error } = await supabase
+                    .from('downloads')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                if (!error && data) {
+                    return data.map(r => ({ nisn: r.nisn, nama: r.nama, tgl: r.created_at }));
+                }
+            } catch(e) {}
+            // Fallback to localStorage
             try { return JSON.parse(localStorage.getItem('tka_downloads') || '[]'); } catch(e) { return []; }
         }
 
-        function renderDashboard() {
-            const logs = getLogs();
+        async function renderDashboard() {
+            const logs = await getLogs();
             const total = logs.length;
             const unique = new Set(logs.map(l => l.nisn)).size;
             const today = new Date().toISOString().slice(0,10);
@@ -266,7 +282,7 @@
         }
 
         // Auto-refresh every 30s
-        setInterval(() => { if (!document.getElementById('dashboard').classList.contains('hidden')) renderDashboard(); }, 30000);
+        setInterval(() => { if (!document.getElementById('dashboard').classList.contains('hidden')) renderDashboard().catch(()=>{}); }, 30000);
     </script>
 </body>
 </html>

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -167,6 +168,11 @@
 
     <script>
         const { PDFDocument, rgb, StandardFonts } = PDFLib;
+
+        const SUPABASE_URL = 'https://skiraowhzwtdcidnhply.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA';
+        let supabase = null;
+        try { supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) {}
 
         const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni',
                         'Juli','Agustus','September','Oktober','November','Desember'];
@@ -465,11 +471,14 @@
             const s = currentStudent;
             const fileName = 'Hasil_TKA_' + (s['Nama'] || '').replace(/\s+/g, '_') + '.pdf';
             try {
-                // record download
+                // record download (localStorage + Supabase)
                 try {
                     const logs = JSON.parse(localStorage.getItem('tka_downloads') || '[]');
                     logs.push({ nisn: s['NISN'], nama: s['Nama'] || '', tgl: new Date().toISOString() });
                     localStorage.setItem('tka_downloads', JSON.stringify(logs));
+                } catch(e) {}
+                try {
+                    supabase && supabase.from('downloads').insert({ nisn: s['NISN'], nama: s['Nama'] || '' }).then().catch(()=>{});
                 } catch(e) {}
 
                 const blob = await generatePDF(s);
