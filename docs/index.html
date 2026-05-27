@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -17,29 +17,6 @@
             }
         }
     </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .pdf-wrap { width: 800px; margin: 0; background: #fff; position: relative; }
-        .pdf-wrap .bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; min-height: 1130px; }
-        .pdf-wrap .bg img { width: 100%; height: 100%; display: block; object-fit: fill; }
-        .pdf-content { position: relative; z-index: 1; width: 656px; margin: 0 auto; padding: 80px 0 30px; font-family: 'Times New Roman', Times, serif; }
-        .pdf-content .title { font-size: 14pt; font-weight: bold; text-align: center; }
-        .pdf-content .subtitle { font-size: 14pt; font-weight: bold; text-align: center; margin-top: 2pt; }
-        .pdf-content .spacer8 { height: 8px; }
-        .pdf-content .spacer16 { height: 16px; }
-        .pdf-content .spacer32 { height: 32px; }
-        .pdf-content .info-field { font-size: 12pt; line-height: 1.8; }
-        .pdf-content .info-field .lbl { display: inline-block; width: 230px; }
-        .pdf-content .body-text { font-size: 12pt; text-align: justify; line-height: 1.5; }
-        .pdf-content .note-text { font-size: 12pt; text-align: justify; line-height: 1.5; }
-        .pdf-content .score-table { width: 100%; border-collapse: collapse; font-size: 12pt; margin: 0; }
-        .pdf-content .score-table th { border: 1px solid #000; padding: 6px 10px; font-weight: bold; text-align: center; }
-        .pdf-content .score-table td { border: 1px solid #000; padding: 6px 10px; text-align: center; }
-        .pdf-content .score-table td:nth-child(2) { text-align: left; }
-        .pdf-content .score-table th:nth-child(2) { text-align: center; }
-        .pdf-content .sig-img { width: 110px; display: block; margin: 12px 0 6px; }
-    </style>
 </head>
 <body class="min-h-screen bg-gray-50">
     <nav class="bg-primary-700 shadow-lg">
@@ -77,9 +54,7 @@
                     <div>
                         <label for="nisn" class="block text-sm font-medium text-gray-700">NISN</label>
                         <div class="relative mt-1">
-                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                <i class="fas fa-id-card text-gray-400"></i>
-                            </div>
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><i class="fas fa-id-card text-gray-400"></i></div>
                             <input type="text" id="nisn" name="nisn" required
                                 class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 pr-3 py-2.5 text-sm placeholder-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500"
                                 placeholder="Contoh: 3111120517" maxlength="20">
@@ -88,9 +63,7 @@
                     <div>
                         <label for="date" class="block text-sm font-medium text-gray-700">Tanggal Lahir (ddmmyyyy)</label>
                         <div class="relative mt-1">
-                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                                <i class="fas fa-calendar text-gray-400"></i>
-                            </div>
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"><i class="fas fa-calendar text-gray-400"></i></div>
                             <input type="text" id="date" name="date" required
                                 class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 pr-3 py-2.5 text-sm placeholder-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500"
                                 placeholder="Contoh: 27072011" maxlength="8" pattern="\d{8}" inputmode="numeric">
@@ -133,9 +106,7 @@
                     </table>
                 </div>
                 <div class="mt-4 overflow-hidden rounded-lg border border-gray-200">
-                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-600">Nilai</span>
-                    </div>
+                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200"><span class="text-xs font-semibold uppercase tracking-wider text-gray-600">Nilai</span></div>
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
@@ -192,82 +163,9 @@
         </footer>
     </main>
 
-    <div id="pdfTemplate" class="hidden">
-        <div class="pdf-wrap">
-            <div class="bg"><img src="images/image1.jpg" alt=""></div>
-            <div class="pdf-content">
-                <div class="spacer32"></div>
-                <div class="title">HASIL TES KEMAMPUAN AKADEMIK</div>
-                <div class="subtitle">TAHUN PELAJARAN 2025/2026</div>
-                <div class="spacer16"></div>
-
-                <div class="info-field">
-                    <span class="lbl">Nama</span> : <span id="pdfNama" style="font-weight:bold;"></span>
-                </div>
-                <div class="info-field">
-                    <span class="lbl">Tempat dan Tanggal Lahir</span> : <span id="pdfTtl"></span>
-                </div>
-                <div class="info-field">
-                    <span class="lbl">Nomor Induk Siswa Nasional</span> : <span id="pdfNISN"></span>
-                </div>
-                <div class="info-field">
-                    <span class="lbl">Nomor Peserta TKA</span> : <span id="pdfNoPeserta"></span>
-                </div>
-                <div class="spacer8"></div>
-
-                <div class="body-text">
-                    Berdasarkan hasil verifikasi oleh pihak sekolah pada data resmi yang disampaikan oleh
-                    <b>Dinas Pendidikan Kota Tangerang Selatan</b>, dengan ini kami sampaikan
-                    <b>Hasil Tes Kemampuan Akademik (TKA)</b> sebagai berikut :
-                </div>
-                <div class="spacer16"></div>
-
-                <table class="score-table">
-                    <thead>
-                        <tr>
-                            <th style="width: 12%;">No.</th>
-                            <th style="width: 48%;">Mata Pelajaran</th>
-                            <th style="width: 18%;">Nilai</th>
-                            <th style="width: 22%;">Predikat</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1.</td>
-                            <td style="text-align:left;">Matematika</td>
-                            <td id="pdfMatScore" style="font-weight:bold;"></td>
-                            <td id="pdfMatRating" style="font-weight:bold;"></td>
-                        </tr>
-                        <tr>
-                            <td>2.</td>
-                            <td style="text-align:left;">Bahasa Indonesia</td>
-                            <td id="pdfBindoScore" style="font-weight:bold;"></td>
-                            <td id="pdfBindoRating" style="font-weight:bold;"></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="spacer16"></div>
-
-                <div class="note-text">
-                    Catatan: Dokumen ini merupakan informasi sementara dari sekolah. Adapun
-                    <b>Sertifikat Hasil Tes Kemampuan Akademik (SHTKA)</b>
-                    akan disampaikan lebih lanjut.
-                </div>
-                <div class="spacer16"></div>
-
-                <div>
-                    Tangerang Selatan, 26 Mei 2026<br>
-                    Kepala Sekolah,
-                </div>
-
-                <img class="sig-img" src="images/image2.jpg" alt="tanda tangan">
-
-                <div style="font-size: 12pt; font-weight: bold;">Khalimi, M.Pd</div>
-            </div>
-        </div>
-    </div>
-
     <script>
+        const { PDFDocument, rgb, StandardFonts } = PDFLib;
+
         const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni',
                         'Juli','Agustus','September','Oktober','November','Desember'];
         let DATA = [];
@@ -281,15 +179,14 @@
 
         function parseRows(rows) {
             for (const r of rows) {
-                let ddmmyyyy = r['ddmmyyyy'];
-                if (typeof ddmmyyyy === 'number') ddmmyyyy = String(ddmmyyyy);
-                else if (ddmmyyyy && typeof ddmmyyyy === 'object' && ddmmyyyy instanceof Date) {
-                    const dd = String(ddmmyyyy.getDate()).padStart(2,'0');
-                    const mm = String(ddmmyyyy.getMonth()+1).padStart(2,'0');
-                    const yyyy = ddmmyyyy.getFullYear();
-                    ddmmyyyy = dd + mm + yyyy;
-                } else ddmmyyyy = String(ddmmyyyy || '').trim();
-                r['ddmmyyyy'] = ddmmyyyy;
+                let d = r['ddmmyyyy'];
+                if (typeof d === 'number') d = String(d);
+                else if (d && typeof d === 'object' && d instanceof Date) {
+                    const dd = String(d.getDate()).padStart(2,'0');
+                    const mm = String(d.getMonth()+1).padStart(2,'0');
+                    d = dd + mm + d.getFullYear();
+                } else d = String(d || '').trim();
+                r['ddmmyyyy'] = d;
                 r['NISN'] = String(r['NISN'] || '').trim();
                 DATA.push(r);
             }
@@ -299,7 +196,6 @@
             const loadingEl = document.getElementById('loadingData');
             const errorEl = document.getElementById('loadError');
             const searchCard = document.getElementById('searchCard');
-
             for (const url of XLSX_URLS) {
                 try {
                     const resp = await fetch(url);
@@ -313,9 +209,7 @@
                     loadingEl.classList.add('hidden');
                     searchCard.classList.remove('hidden');
                     return;
-                } catch (e) {
-                    console.warn('Fetch failed for ' + url, e);
-                }
+                } catch (e) { console.warn('Fetch failed for ' + url, e); }
             }
             loadingEl.classList.add('hidden');
             errorEl.classList.remove('hidden');
@@ -339,29 +233,207 @@
         }
 
         function findStudent(nisn, date) {
-            for (const r of DATA) {
-                if (r['NISN'] === nisn && r['ddmmyyyy'] === date) return r;
-            }
+            for (const r of DATA) if (r['NISN'] === nisn && r['ddmmyyyy'] === date) return r;
             return null;
         }
 
+        // ---------- PDF generation with pdf-lib ----------
+        /* layout (PDF points, A4 = 595.28 x 841.89)
+           px    = content left edge
+           cx    = page center
+           col_w = content width (right edge - px)
+           y_bot = y coordinate from bottom of page
+        */
+        const PW = 595.28, PH = 841.89;
+        const px = 82, col_w = 431;
+
+        function wrapLines(font, text, maxW, size) {
+            const words = text.split(' '); const lines = [];
+            let line = '';
+            for (const w of words) {
+                const test = line ? line + ' ' + w : w;
+                if (font.widthOfTextAtSize(test, size) > maxW) {
+                    if (line) { lines.push(line); line = w; }
+                    else { lines.push(w); line = ''; }
+                } else { line = test; }
+            }
+            if (line) lines.push(line);
+            return lines;
+        }
+
+        function drawTable(page, font, boldFont, rows, x, y0, colWidths, rowH) {
+            const nCols = colWidths.length;
+            const tableW = colWidths.reduce((a,b) => a+b, 0);
+            // header row
+            let yy = y0;
+            for (let r = 0; r < rows.length; r++) {
+                const cells = rows[r];
+                let xx = x;
+                for (let c = 0; c < nCols; c++) {
+                    const cw = colWidths[c];
+                    // border
+                    page.drawRectangle({
+                        x: xx, y: yy - rowH, width: cw, height: rowH,
+                        borderColor: rgb(0,0,0), borderWidth: 0.5,
+                        color: rgb(1,1,1),
+                    });
+                    // text
+                    const isBold = r === 0;
+                    const f = isBold ? boldFont : font;
+                    const txt = String(cells[c] || '');
+                    let tx = xx + 4;
+                    if (c !== 1) { // center for non-subject cols
+                        const tw = f.widthOfTextAtSize(txt, 10);
+                        tx = xx + (cw - tw) / 2;
+                    }
+                    page.drawText(txt, { x: tx, y: yy - rowH + 4, size: 10, font: f, color: rgb(0,0,0) });
+                    // right border
+                    if (c < nCols - 1) {
+                        page.drawLine({ start: { x: xx + cw, y: yy }, end: { x: xx + cw, y: yy - rowH }, thickness: 0.5, color: rgb(0,0,0) });
+                    }
+                    xx += cw;
+                }
+                // bottom border
+                page.drawLine({ start: { x: x, y: yy - rowH }, end: { x: x + tableW, y: yy - rowH }, thickness: 0.5, color: rgb(0,0,0) });
+                yy -= rowH;
+            }
+        }
+
+        async function generatePDF(student) {
+            const pdfDoc = await PDFDocument.create();
+            const page = pdfDoc.addPage([PW, PH]);
+
+            // Load images
+            const [bgBytes, sigBytes] = await Promise.all([
+                fetch('images/image1.jpg').then(r => r.arrayBuffer()),
+                fetch('images/image2.jpg').then(r => r.arrayBuffer()),
+            ]);
+            const bgImg = await pdfDoc.embedJpg(bgBytes);
+            const sigImg = await pdfDoc.embedJpg(sigBytes);
+
+            // Full-page background
+            page.drawImage(bgImg, { x: 0, y: 0, width: PW, height: PH });
+
+            // Fonts
+            const font = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+            const bold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+            const cx = PW / 2;
+
+            const txt = (text, x, y, opts = {}) => {
+                const f = opts.bold ? bold : font;
+                const sz = opts.size || 12;
+                page.drawText(text, { x, y, size: sz, font: f, color: rgb(0,0,0) });
+            };
+
+            // Title
+            let t = 'HASIL TES KEMAMPUAN AKADEMIK';
+            txt(t, cx - font.widthOfTextAtSize(t, 14)/2, 732, { size: 14, bold: true });
+            t = 'TAHUN PELAJARAN 2025/2026';
+            txt(t, cx - font.widthOfTextAtSize(t, 14)/2, 710, { size: 14, bold: true });
+
+            // Info fields
+            const lx = px, vx = px + 210;
+            let y = 672;
+            const infos = [
+                ['Nama', student['Nama'] || ''],
+                ['Tempat dan Tanggal Lahir', formatDate(student['ddmmyyyy'])],
+                ['Nomor Induk Siswa Nasional', student['NISN']],
+                ['Nomor Peserta TKA', student['Nomor_Peserta'] || ''],
+            ];
+            for (const [l, v] of infos) {
+                txt(l, lx, y, { bold: true });
+                txt(':  ' + v, vx, y);
+                y -= 18;
+            }
+
+            // Body text
+            const bodyText = 'Berdasarkan hasil verifikasi oleh pihak sekolah pada data resmi yang disampaikan oleh Dinas Pendidikan Kota Tangerang Selatan, dengan ini kami sampaikan Hasil Tes Kemampuan Akademik (TKA) sebagai berikut :';
+            const bodyLines = wrapLines(font, bodyText, col_w - 10, 11);
+            let by = y - 12;
+            for (const line of bodyLines) {
+                const parts = line.split(/(Dinas Pendidikan Kota Tangerang Selatan|Hasil Tes Kemampuan Akademik \(TKA\))/);
+                let bx = px + 5;
+                if (parts.length === 1) {
+                    txt(line, bx, by, { size: 11 });
+                    bx += font.widthOfTextAtSize(line, 11);
+                } else {
+                    for (const seg of parts) {
+                        if (seg === 'Dinas Pendidikan Kota Tangerang Selatan' || seg === 'Hasil Tes Kemampuan Akademik (TKA)') {
+                            txt(seg, bx, by, { size: 11, bold: true });
+                            bx += bold.widthOfTextAtSize(seg, 11);
+                        } else {
+                            txt(seg, bx, by, { size: 11 });
+                            bx += font.widthOfTextAtSize(seg, 11);
+                        }
+                    }
+                }
+                by -= 16;
+            }
+
+            // Score table
+            const tblY = by - 6;
+            const colW = [48, 207, 74, col_w - 48 - 207 - 74]; // ~48, 207, 74, rest
+            const rows = [
+                ['No.', 'Mata Pelajaran', 'Nilai', 'Predikat'],
+                ['1.', 'Matematika', fmtSkor(student['Matematika_Score']), student['Matematika_Rating'] || ''],
+                ['2.', 'Bahasa Indonesia', fmtSkor(student['Bahasa_Indonesia_Score']), student['Bahasa_Indonesia_Rating'] || ''],
+            ];
+            drawTable(page, font, bold, rows, px + 4, tblY, colW, 22);
+            const afterTbl = tblY - 22 * 3;
+
+            // Note text
+            const noteText = 'Catatan: Dokumen ini merupakan informasi sementara dari sekolah. Adapun Sertifikat Hasil Tes Kemampuan Akademik (SHTKA) akan disampaikan lebih lanjut.';
+            const noteLines = wrapLines(font, noteText, col_w - 10, 11);
+            let ny = afterTbl - 12;
+            for (const line of noteLines) {
+                const parts = line.split(/(Sertifikat Hasil Tes Kemampuan Akademik \(SHTKA\))/);
+                let nx = px + 5;
+                if (parts.length === 1) {
+                    txt(line, nx, ny, { size: 11 });
+                } else {
+                    for (const seg of parts) {
+                        if (seg === 'Sertifikat Hasil Tes Kemampuan Akademik (SHTKA)') {
+                            txt(seg, nx, ny, { size: 11, bold: true });
+                            nx += bold.widthOfTextAtSize(seg, 11);
+                        } else {
+                            txt(seg, nx, ny, { size: 11 });
+                            nx += font.widthOfTextAtSize(seg, 11);
+                        }
+                    }
+                }
+                ny -= 16;
+            }
+
+            // Signature area
+            const sigTop = ny - 20;
+            txt('Tangerang Selatan, 26 Mei 2026', px + 5, sigTop, { size: 11 });
+            txt('Kepala Sekolah,', px + 5, sigTop - 18, { size: 11 });
+
+            // Signature image (width ≈ 110pt at original aspect)
+            const sigW = 110;
+            const sigH = sigW * sigImg.height / sigImg.width;
+            page.drawImage(sigImg, { x: px + 5, y: sigTop - 18 - 8 - sigH, width: sigW, height: sigH });
+            const afterSig = sigTop - 18 - 8 - sigH - 8;
+
+            txt('Khalimi, M.Pd', px + 5, afterSig, { size: 11, bold: true });
+
+            // Save
+            const pdfBytes = await pdfDoc.save();
+            return new Blob([pdfBytes], { type: 'application/pdf' });
+        }
+
+        // ---------- UI event handlers ----------
         document.getElementById('searchForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            document.getElementById('errorMsg').classList.add('hidden');
-            document.getElementById('resultCard').classList.add('hidden');
-            document.getElementById('successCard').classList.add('hidden');
-
+            ['errorMsg','resultCard','successCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
             const nisn = document.getElementById('nisn').value.trim();
             const date = document.getElementById('date').value.trim();
             if (!nisn || !date) return;
-
             document.getElementById('searchLoading').classList.remove('hidden');
             document.getElementById('searchBtn').disabled = true;
-
             setTimeout(() => {
                 document.getElementById('searchLoading').classList.add('hidden');
                 document.getElementById('searchBtn').disabled = false;
-
                 const student = findStudent(nisn, date);
                 if (student) {
                     currentStudent = student;
@@ -372,16 +444,11 @@
                     document.getElementById('dispMatRating').textContent = student['Matematika_Rating'] || '-';
                     document.getElementById('dispBindoScore').textContent = fmtSkor(student['Bahasa_Indonesia_Score']);
                     document.getElementById('dispBindoRating').textContent = student['Bahasa_Indonesia_Rating'] || '-';
-
-                    const mt = fmtSkor(student['Matematika_Score']);
-                    const mr = student['Matematika_Rating'] || '-';
-                    const bt = fmtSkor(student['Bahasa_Indonesia_Score']);
-                    const br = student['Bahasa_Indonesia_Rating'] || '-';
-                    const mtColor = mr === 'Baik' ? 'text-green-600' : mr === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
-                    const btColor = br === 'Baik' ? 'text-green-600' : br === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
-                    document.getElementById('dispMatRating').className = 'px-4 py-3 text-center font-semibold ' + mtColor;
-                    document.getElementById('dispBindoRating').className = 'px-4 py-3 text-center font-semibold ' + btColor;
-
+                    const mr = student['Matematika_Rating'] || '-', br = student['Bahasa_Indonesia_Rating'] || '-';
+                    const mc = mr === 'Baik' ? 'text-green-600' : mr === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
+                    const bc = br === 'Baik' ? 'text-green-600' : br === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
+                    document.getElementById('dispMatRating').className = 'px-4 py-3 text-center font-semibold ' + mc;
+                    document.getElementById('dispBindoRating').className = 'px-4 py-3 text-center font-semibold ' + bc;
                     document.getElementById('resultCard').classList.remove('hidden');
                 } else {
                     document.getElementById('errorText').textContent = 'Data tidak ditemukan. Periksa kembali NISN dan Tanggal Lahir.';
@@ -393,76 +460,26 @@
         document.getElementById('previewBtn').addEventListener('click', async function() {
             if (!currentStudent) return;
             document.getElementById('generateLoading').classList.remove('hidden');
-
             const s = currentStudent;
-            document.getElementById('pdfNama').textContent = s['Nama'] || '';
-            document.getElementById('pdfTtl').textContent = formatDate(s['ddmmyyyy']);
-            document.getElementById('pdfNISN').textContent = s['NISN'];
-            document.getElementById('pdfNoPeserta').textContent = s['Nomor_Peserta'] || '';
-            document.getElementById('pdfMatScore').textContent = fmtSkor(s['Matematika_Score']);
-            document.getElementById('pdfMatRating').textContent = s['Matematika_Rating'] || '';
-            document.getElementById('pdfBindoScore').textContent = fmtSkor(s['Bahasa_Indonesia_Score']);
-            document.getElementById('pdfBindoRating').textContent = s['Bahasa_Indonesia_Rating'] || '';
-
-            const el = document.getElementById('pdfTemplate').cloneNode(true);
-            el.classList.remove('hidden');
-            el.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;';
-            el.id = 'pdfClone-' + Date.now();
-            document.body.appendChild(el);
-
-            const wrap = el.querySelector('.pdf-wrap');
-
-            // preload images
-            const imgs = wrap.querySelectorAll('img');
-            await Promise.all(Array.from(imgs).map(img =>
-                img.complete ? Promise.resolve() : new Promise(r => { img.onload = r; img.onerror = r; })
-            ));
-
+            const fileName = 'Hasil_TKA_' + (s['Nama'] || '').replace(/\s+/g, '_') + '.pdf';
             try {
-                const fileName = 'Hasil_TKA_' + (s['Nama'] || '').replace(/\s+/g, '_') + '.pdf';
-
-                const blob = await html2pdf()
-                    .set({
-                        margin: [8, 8, 8, 8],
-                        width: 194,
-                        image: { type: 'jpeg', quality: 0.95 },
-                        html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
-                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-                    })
-                    .from(wrap)
-                    .outputPdf('blob');
-
+                const blob = await generatePDF(s);
                 const url = URL.createObjectURL(blob);
-
-                // Auto-download (works on mobile & desktop)
                 const a = document.createElement('a');
-                a.href = url;
-                a.download = fileName;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-                // Also open in new tab for desktop preview
+                a.href = url; a.download = fileName;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
                 window.open(url, '_blank');
-
-                // Wire download button
                 document.getElementById('downloadPdfBtn').onclick = function() {
                     const a2 = document.createElement('a');
-                    a2.href = url;
-                    a2.download = fileName;
-                    document.body.appendChild(a2);
-                    a2.click();
-                    document.body.removeChild(a2);
+                    a2.href = url; a2.download = fileName;
+                    document.body.appendChild(a2); a2.click(); document.body.removeChild(a2);
                 };
-
                 document.getElementById('successCard').classList.remove('hidden');
             } catch (e) {
                 console.error(e);
                 document.getElementById('errorText').textContent = 'Gagal menghasilkan PDF. Silakan coba lagi.';
                 document.getElementById('errorMsg').classList.remove('hidden');
             } finally {
-                el.remove();
                 document.getElementById('generateLoading').classList.add('hidden');
             }
         });
