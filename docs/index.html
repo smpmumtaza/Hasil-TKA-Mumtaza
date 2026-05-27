@@ -408,6 +408,7 @@
             document.getElementById('pdfBindoRating').textContent = s['Bahasa_Indonesia_Rating'] || '';
 
             const el = document.getElementById('pdfTemplate').cloneNode(true);
+            el.classList.remove('hidden');
             el.style.cssText = 'position:fixed;left:-9999px;top:0;';
             el.id = 'pdfClone-' + Date.now();
             document.body.appendChild(el);
