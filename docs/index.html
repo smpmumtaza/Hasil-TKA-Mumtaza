@@ -46,9 +46,7 @@
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div class="flex h-16 items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
-                        <i class="fas fa-graduation-cap text-white text-lg"></i>
-                    </div>
+                    <img src="images/logo.png" alt="Mumtaza" class="h-10 w-10 rounded-full object-cover">
                     <div>
                         <h1 class="text-lg font-bold text-white">SMP Mumtaza</h1>
                         <p class="text-xs text-primary-100 -mt-1">Hasil Tes Kemampuan Akademik</p>
@@ -191,7 +189,6 @@
 
         <footer class="mt-8 text-center text-xs text-gray-400">
             &copy; 2026 SMP Mumtaza &mdash; Sistem Informasi Hasil TKA
-            &middot; <a href="https://github.com/smpmumtaza/Hasil-TKA-Mumtaza" class="hover:text-gray-600 underline">GitHub</a>
         </footer>
     </main>
 
@@ -334,10 +331,11 @@
             return s;
         }
 
-        function cleanNum(v) {
+        function fmtSkor(v) {
             if (v === '' || v === null || v === undefined) return '';
-            if (typeof v === 'number') return String(Math.round(v));
-            return String(v).trim();
+            let n = typeof v === 'number' ? v : parseFloat(String(v).replace(',', '.'));
+            if (isNaN(n)) return String(v).trim();
+            return n.toFixed(2).replace('.', ',');
         }
 
         function findStudent(nisn, date) {
@@ -370,14 +368,14 @@
                     document.getElementById('dispNama').textContent = student['Nama'] || '-';
                     document.getElementById('dispNISN').textContent = student['NISN'];
                     document.getElementById('dispNoPeserta').textContent = student['Nomor_Peserta'] || '-';
-                    document.getElementById('dispMatScore').textContent = cleanNum(student['Matematika_Score']);
+                    document.getElementById('dispMatScore').textContent = fmtSkor(student['Matematika_Score']);
                     document.getElementById('dispMatRating').textContent = student['Matematika_Rating'] || '-';
-                    document.getElementById('dispBindoScore').textContent = cleanNum(student['Bahasa_Indonesia_Score']);
+                    document.getElementById('dispBindoScore').textContent = fmtSkor(student['Bahasa_Indonesia_Score']);
                     document.getElementById('dispBindoRating').textContent = student['Bahasa_Indonesia_Rating'] || '-';
 
-                    const mt = cleanNum(student['Matematika_Score']);
+                    const mt = fmtSkor(student['Matematika_Score']);
                     const mr = student['Matematika_Rating'] || '-';
-                    const bt = cleanNum(student['Bahasa_Indonesia_Score']);
+                    const bt = fmtSkor(student['Bahasa_Indonesia_Score']);
                     const br = student['Bahasa_Indonesia_Rating'] || '-';
                     const mtColor = mr === 'Baik' ? 'text-green-600' : mr === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
                     const btColor = br === 'Baik' ? 'text-green-600' : br === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
@@ -401,9 +399,9 @@
             document.getElementById('pdfTtl').textContent = formatDate(s['ddmmyyyy']);
             document.getElementById('pdfNISN').textContent = s['NISN'];
             document.getElementById('pdfNoPeserta').textContent = s['Nomor_Peserta'] || '';
-            document.getElementById('pdfMatScore').textContent = cleanNum(s['Matematika_Score']);
+            document.getElementById('pdfMatScore').textContent = fmtSkor(s['Matematika_Score']);
             document.getElementById('pdfMatRating').textContent = s['Matematika_Rating'] || '';
-            document.getElementById('pdfBindoScore').textContent = cleanNum(s['Bahasa_Indonesia_Score']);
+            document.getElementById('pdfBindoScore').textContent = fmtSkor(s['Bahasa_Indonesia_Score']);
             document.getElementById('pdfBindoRating').textContent = s['Bahasa_Indonesia_Rating'] || '';
 
             const el = document.getElementById('pdfTemplate').cloneNode(true);
