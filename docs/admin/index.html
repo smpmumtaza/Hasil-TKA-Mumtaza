@@ -135,6 +135,13 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        function wib(iso) {
+            if (!iso) return null;
+            const d = new Date(iso);
+            d.setTime(d.getTime() + 7 * 3600000);
+            return d.toISOString();
+        }
+
         // ----- Login -----
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -179,8 +186,8 @@
             const logs = await getLogs();
             const total = logs.length;
             const unique = new Set(logs.map(l => l.nisn)).size;
-            const today = new Date().toISOString().slice(0,10);
-            const todayCount = logs.filter(l => (l.tgl || '').slice(0,10) === today).length;
+            const today = wib(new Date().toISOString()).slice(0,10);
+            const todayCount = logs.filter(l => (wib(l.tgl || '') || '').slice(0,10) === today).length;
             document.getElementById('totalDownloads').textContent = total;
             document.getElementById('uniqueStudents').textContent = unique;
             document.getElementById('todayCount').textContent = todayCount;
@@ -241,7 +248,7 @@
             const ctx3 = document.getElementById('timeChart').getContext('2d');
             const dayMap = {};
             for (const l of logs) {
-                const d = (l.tgl || '').slice(0,10);
+                const d = (wib(l.tgl || '') || '').slice(0,10);
                 if (d) dayMap[d] = (dayMap[d] || 0) + 1;
             }
             const sortedDays = Object.keys(dayMap).sort();
@@ -268,8 +275,8 @@
                 <td class="px-4 py-2.5 text-gray-400">${logs.length - i}</td>
                 <td class="px-4 py-2.5 font-mono text-gray-800">${l.nisn || '-'}</td>
                 <td class="px-4 py-2.5 text-gray-700">${l.nama || '-'}</td>
-                <td class="px-4 py-2.5 text-gray-500">${(l.tgl || '').slice(11,19)}</td>
-                <td class="px-4 py-2.5 text-gray-500">${(l.tgl || '').slice(0,10)}</td>
+                <td class="px-4 py-2.5 text-gray-500">${(wib(l.tgl || '') || '').slice(11,19)}</td>
+                <td class="px-4 py-2.5 text-gray-500">${(wib(l.tgl || '') || '').slice(0,10)}</td>
             </tr>`).join('');
 
             // Clear button
