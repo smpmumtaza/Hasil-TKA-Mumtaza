@@ -1,9 +1,14 @@
-import os, tempfile, threading
+import os, tempfile, subprocess, platform
+from pathlib import Path
 from flask import Flask, render_template, request, send_file, jsonify
 import openpyxl
 from docx import Document
-import win32com.client
-import pythoncom
+
+SYSTEM = platform.system()
+
+if SYSTEM == 'Windows':
+    import win32com.client
+    import pythoncom
 
 app = Flask(__name__)
 
@@ -92,19 +97,25 @@ def fill_template(record):
     return out, tmp
 
 def docx_to_pdf(docx_path, pdf_path):
-    pythoncom.CoInitialize()
-    word = win32com.client.Dispatch('Word.Application')
-    word.Visible = False
-    try:
-        doc = word.Documents.Open(docx_path)
-        doc.SaveAs(pdf_path, FileFormat=17)
-        doc.Close()
-        return pdf_path
-    except Exception as e:
-        raise e
-    finally:
-        word.Quit()
-        pythoncom.CoUninitialize()
+    if SYSTEM == 'Windows':
+        pythoncom.CoInitialize()
+        word = win32com.client.Dispatch('Word.Application')
+        word.Visible = False
+        try:
+            doc = word.Documents.Open(str(docx_path))
+            doc.SaveAs(str(pdf_path), FileFormat=17)
+            doc.Close()
+        finally:
+            word.Quit()
+            pythoncom.CoUninitialize()
+    else:
+        outdir = str(Path(pdf_path).parent)
+        subprocess.run(
+            ['libreoffice', '--headless', '--convert-to', 'pdf',
+             '--outdir', outdir, str(docx_path)],
+            check=True, timeout=60, capture_output=True
+        )
+    return pdf_path
 
 @app.route('/')
 def index():

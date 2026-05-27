@@ -3,8 +3,8 @@ services:
     name: hasil-tka-mumtaza
     env: python
     buildCommand: |
-      apt-get update && apt-get install -y libreoffice-writer && pip install -r requirements.txt
-    startCommand: gunicorn app:app
+      apt-get update -qq && apt-get install -y -qq libreoffice-writer && pip install -r requirements.txt
+    startCommand: gunicorn app:app --timeout 120
     envVars:
       - key: PYTHON_VERSION
         value: 3.12
