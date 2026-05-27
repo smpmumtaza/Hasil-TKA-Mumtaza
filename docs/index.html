@@ -6,49 +6,440 @@
     <title>Hasil TKA - SMP Mumtaza</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' } }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .pdf-template { font-family: 'Times New Roman', Times, serif; }
+        .pdf-template .title { font-size: 14pt; font-weight: bold; text-align: center; }
+        .pdf-template .subtitle { font-size: 14pt; font-weight: bold; text-align: center; }
+        .pdf-template .info-field { font-size: 12pt; line-height: 1.8; }
+        .pdf-template .info-field .label { display: inline-block; width: 200px; }
+        .pdf-template .body-text { font-size: 12pt; text-align: justify; line-height: 1.5; }
+        .pdf-template .note-text { font-size: 12pt; text-align: justify; line-height: 1.5; }
+        .pdf-template .signature { font-size: 12pt; }
+        .pdf-template .signature-name { font-size: 12pt; font-weight: bold; }
+        .pdf-template .score-table { width: 100%; border-collapse: collapse; font-size: 12pt; margin: 0; }
+        .pdf-template .score-table th { border: 1px solid #000; padding: 6px 10px; font-weight: bold; text-align: center; }
+        .pdf-template .score-table td { border: 1px solid #000; padding: 6px 10px; text-align: center; }
+        .pdf-template .score-table td:first-child { text-align: center; }
+        .pdf-template .score-table td:nth-child(2) { text-align: left; }
+        .pdf-template .score-table td:last-child { text-align: center; }
+        .pdf-template .score-table th:nth-child(2) { text-align: center; }
+        @media print {
+            .pdf-template { position: fixed; top: 0; left: 0; width: 210mm; padding: 25mm 25mm 20mm; }
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-    <div class="w-full max-w-lg text-center">
-        <div class="bg-white rounded-2xl shadow-xl p-8">
-            <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <i class="fas fa-graduation-cap text-blue-600 text-2xl"></i>
-            </div>
-            <h1 class="text-2xl font-bold text-gray-800 mb-2">Hasil Tes Kemampuan Akademik</h1>
-            <p class="text-gray-500 mb-6">SMP Mumtaza — Tangerang Selatan</p>
-
-            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-sm text-amber-700 text-left">
-                <i class="fas fa-info-circle mr-1"></i>
-                Aplikasi ini membutuhkan backend server untuk memproses data dan mencetak PDF.
-            </div>
-
-            <div class="space-y-3">
-                <p class="text-sm text-gray-600">Akses aplikasi melalui:</p>
-                <a href="https://hasil-tka-mumtaza.onrender.com"
-                   class="block w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition shadow-md">
-                    <i class="fas fa-external-link-alt mr-2"></i> Buka Aplikasi
-                </a>
-            </div>
-
-            <hr class="my-6 border-gray-200">
-
-            <details class="text-left text-sm text-gray-600">
-                <summary class="cursor-pointer font-medium text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-code-branch mr-1"></i> Jalankan Secara Lokal
-                </summary>
-                <div class="mt-3 bg-gray-50 rounded-lg p-3">
-                    <code class="text-xs block mb-2">git clone https://github.com/smpmumtaza/Hasil-TKA-Mumtaza.git</code>
-                    <code class="text-xs block mb-2">cd Hasil-TKA-Mumtaza</code>
-                    <code class="text-xs block mb-2">pip install -r requirements.txt</code>
-                    <code class="text-xs block">python app.py</code>
-                    <p class="mt-2 text-xs text-gray-500">Buka http://localhost:5000</p>
+<body class="min-h-screen bg-gray-50">
+    <nav class="bg-primary-700 shadow-lg">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="flex h-16 items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-white/20">
+                        <i class="fas fa-graduation-cap text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-white">SMP Mumtaza</h1>
+                        <p class="text-xs text-primary-100 -mt-1">Hasil Tes Kemampuan Akademik</p>
+                    </div>
                 </div>
-            </details>
-
-            <div class="mt-6 text-xs text-gray-400">
-                <i class="fab fa-github mr-1"></i>
-                <a href="https://github.com/smpmumtaza/Hasil-TKA-Mumtaza" class="hover:text-gray-600">smpmumtaza/Hasil-TKA-Mumtaza</a>
             </div>
         </div>
+    </nav>
+
+    <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
+        <div id="loadingData" class="flex items-center justify-center gap-3 rounded-xl bg-white p-6 shadow-md mb-6">
+            <i class="fas fa-spinner fa-spin text-primary-600 text-xl"></i>
+            <span class="text-gray-600">Memuat data siswa...</span>
+        </div>
+
+        <div id="loadError" class="hidden rounded-xl bg-red-50 p-6 shadow-md mb-6 text-red-700">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            <span>Gagal memuat data. Periksa koneksi internet.</span>
+        </div>
+
+        <div id="searchCard" class="hidden rounded-xl bg-white p-6 shadow-md sm:p-8 mb-6">
+            <div class="mb-6 text-center">
+                <h2 class="text-xl font-semibold text-gray-800">Cari Hasil TKA</h2>
+                <p class="mt-1 text-sm text-gray-500">Masukkan NISN dan Tanggal Lahir untuk melihat hasil</p>
+            </div>
+            <form id="searchForm" class="space-y-4">
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="nisn" class="block text-sm font-medium text-gray-700">NISN</label>
+                        <div class="relative mt-1">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <i class="fas fa-id-card text-gray-400"></i>
+                            </div>
+                            <input type="text" id="nisn" name="nisn" required
+                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 pr-3 py-2.5 text-sm placeholder-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                placeholder="Contoh: 3111120517" maxlength="20">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="date" class="block text-sm font-medium text-gray-700">Tanggal Lahir (ddmmyyyy)</label>
+                        <div class="relative mt-1">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                <i class="fas fa-calendar text-gray-400"></i>
+                            </div>
+                            <input type="text" id="date" name="date" required
+                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 pl-10 pr-3 py-2.5 text-sm placeholder-gray-400 focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary-500"
+                                placeholder="Contoh: 27072011" maxlength="8" pattern="\d{8}" inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" id="searchBtn"
+                    class="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60">
+                    <i class="fas fa-search"></i> Cari Data
+                </button>
+            </form>
+
+            <div id="searchLoading" class="mt-4 hidden text-center">
+                <i class="fas fa-spinner fa-spin text-primary-600 text-xl"></i>
+                <p class="mt-1 text-sm text-gray-500">Mencari data...</p>
+            </div>
+
+            <div id="errorMsg" class="mt-4 hidden rounded-lg bg-red-50 p-4 text-sm text-red-700">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                <span id="errorText">Data tidak ditemukan.</span>
+            </div>
+
+            <div id="resultCard" class="mt-6 hidden">
+                <div class="rounded-lg border border-green-200 bg-green-50 p-4">
+                    <div class="flex items-center gap-2 text-green-700">
+                        <i class="fas fa-check-circle"></i>
+                        <span class="font-medium">Data ditemukan!</span>
+                    </div>
+                </div>
+                <div class="mt-4 overflow-hidden rounded-lg border border-gray-200">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <tbody class="divide-y divide-gray-100">
+                            <tr><td class="whitespace-nowrap px-4 py-3 font-medium text-gray-600 w-1/3">Nama</td>
+                                <td class="px-4 py-3 text-gray-900 font-semibold" id="dispNama">-</td></tr>
+                            <tr><td class="whitespace-nowrap px-4 py-3 font-medium text-gray-600">NISN</td>
+                                <td class="px-4 py-3 text-gray-900" id="dispNISN">-</td></tr>
+                            <tr><td class="whitespace-nowrap px-4 py-3 font-medium text-gray-600">Nomor Peserta</td>
+                                <td class="px-4 py-3 text-gray-900" id="dispNoPeserta">-</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4 overflow-hidden rounded-lg border border-gray-200">
+                    <div class="bg-gray-50 px-4 py-2 border-b border-gray-200">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-gray-600">Nilai</span>
+                    </div>
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-semibold uppercase text-gray-500">Mata Pelajaran</th>
+                                <th class="px-4 py-2 text-center text-xs font-semibold uppercase text-gray-500">Nilai</th>
+                                <th class="px-4 py-2 text-center text-xs font-semibold uppercase text-gray-500">Predikat</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr><td class="px-4 py-3 text-gray-700">Matematika</td>
+                                <td class="px-4 py-3 text-center font-semibold text-gray-900" id="dispMatScore">-</td>
+                                <td class="px-4 py-3 text-center font-semibold" id="dispMatRating">-</td></tr>
+                            <tr><td class="px-4 py-3 text-gray-700">Bahasa Indonesia</td>
+                                <td class="px-4 py-3 text-center font-semibold text-gray-900" id="dispBindoScore">-</td>
+                                <td class="px-4 py-3 text-center font-semibold" id="dispBindoRating">-</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+                    <button id="previewBtn"
+                        class="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60">
+                        <i class="fas fa-file-pdf"></i> Preview PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="pdfContainer" class="hidden rounded-xl bg-white shadow-md overflow-hidden mb-6">
+            <div class="flex items-center justify-between bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <h3 class="text-sm font-semibold text-gray-700">
+                    <i class="fas fa-file-pdf text-red-500 mr-1"></i> Preview PDF
+                </h3>
+                <div class="flex gap-2">
+                    <button id="downloadPdfBtn"
+                        class="rounded px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-200 transition">
+                        <i class="fas fa-download mr-1"></i> Download
+                    </button>
+                    <button onclick="document.getElementById('pdfContainer').classList.add('hidden')"
+                        class="rounded px-3 py-1.5 text-xs font-medium text-gray-400 hover:bg-gray-200 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="bg-gray-100 flex items-center justify-center p-2" style="min-height: 70vh;">
+                <iframe id="pdfFrame" class="w-full rounded border-0" style="height: 70vh;" src=""></iframe>
+            </div>
+        </div>
+
+        <div id="generateLoading" class="hidden fixed inset-0 bg-black/30 z-50 flex items-center justify-center">
+            <div class="bg-white rounded-xl p-6 shadow-2xl text-center">
+                <i class="fas fa-spinner fa-spin text-primary-600 text-3xl mb-3"></i>
+                <p class="text-gray-700 font-medium">Menghasilkan PDF...</p>
+                <p class="text-xs text-gray-400 mt-1">Mohon tunggu sebentar</p>
+            </div>
+        </div>
+
+        <footer class="mt-8 text-center text-xs text-gray-400">
+            &copy; 2026 SMP Mumtaza &mdash; Sistem Informasi Hasil TKA
+            &middot; <a href="https://github.com/smpmumtaza/Hasil-TKA-Mumtaza" class="hover:text-gray-600 underline">GitHub</a>
+        </footer>
+    </main>
+
+    <div id="pdfTemplate" class="hidden">
+        <div class="pdf-template" style="width: 190mm; padding: 20mm 25mm; margin: 0 auto; background: #fff;">
+            <div style="height: 20mm;"></div>
+            <div class="title">HASIL TES KEMAMPUAN AKADEMIK</div>
+            <div class="subtitle">TAHUN PELAJARAN 2025/2026</div>
+            <div style="height: 8mm;"></div>
+
+            <div class="info-field">
+                <span class="label">Nama</span> : <span id="pdfNama" style="font-weight:bold;"></span>
+            </div>
+            <div class="info-field">
+                <span class="label">Tempat dan Tanggal Lahir</span> : <span id="pdfTtl"></span>
+            </div>
+            <div class="info-field">
+                <span class="label">Nomor Induk Siswa Nasional</span> : <span id="pdfNISN"></span>
+            </div>
+            <div class="info-field" style="margin-bottom: 8mm;">
+                <span class="label">Nomor Peserta TKA</span> : <span id="pdfNoPeserta"></span>
+            </div>
+
+            <div class="body-text" style="margin-bottom: 8mm;">
+                Berdasarkan hasil verifikasi oleh pihak sekolah pada data resmi yang disampaikan oleh
+                <b>Dinas Pendidikan Kota Tangerang Selatan</b>, dengan ini kami sampaikan
+                <b>Hasil Tes Kemampuan Akademik (TKA)</b> sebagai berikut :
+            </div>
+
+            <table class="score-table" style="margin-bottom: 6mm;">
+                <thead>
+                    <tr>
+                        <th style="width: 12%;">No.</th>
+                        <th style="width: 48%;">Mata Pelajaran</th>
+                        <th style="width: 18%;">Nilai</th>
+                        <th style="width: 22%;">Predikat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1.</td>
+                        <td style="text-align:left;">Matematika</td>
+                        <td id="pdfMatScore" style="font-weight:bold;"></td>
+                        <td id="pdfMatRating" style="font-weight:bold;"></td>
+                    </tr>
+                    <tr>
+                        <td>2.</td>
+                        <td style="text-align:left;">Bahasa Indonesia</td>
+                        <td id="pdfBindoScore" style="font-weight:bold;"></td>
+                        <td id="pdfBindoRating" style="font-weight:bold;"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="note-text" style="margin-bottom: 10mm;">
+                Catatan: Dokumen ini merupakan informasi sementara dari sekolah. Adapun
+                <b>Sertifikat Hasil Tes Kemampuan Akademik (SHTKA)</b>
+                akan disampaikan lebih lanjut.
+            </div>
+
+            <div class="signature" style="margin-bottom: 30mm;">
+                Tangerang Selatan, 26 Mei 2026<br>
+                Kepala Sekolah,
+            </div>
+
+            <div class="signature-name">Khalimi, M.Pd</div>
+        </div>
     </div>
+
+    <script>
+        const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni',
+                        'Juli','Agustus','September','Oktober','November','Desember'];
+        let DATA = [];
+        let currentStudent = null;
+        let dataLoaded = false;
+
+        const XLSX_URLS = [
+            './Data%20TKA%20SMP%20Mumtaza.xlsx',
+            'https://raw.githubusercontent.com/smpmumtaza/Hasil-TKA-Mumtaza/main/Data%20TKA%20SMP%20Mumtaza.xlsx'
+        ];
+
+        function parseRows(rows) {
+            for (const r of rows) {
+                let ddmmyyyy = r['ddmmyyyy'];
+                if (typeof ddmmyyyy === 'number') ddmmyyyy = String(ddmmyyyy);
+                else if (ddmmyyyy && typeof ddmmyyyy === 'object' && ddmmyyyy instanceof Date) {
+                    const dd = String(ddmmyyyy.getDate()).padStart(2,'0');
+                    const mm = String(ddmmyyyy.getMonth()+1).padStart(2,'0');
+                    const yyyy = ddmmyyyy.getFullYear();
+                    ddmmyyyy = dd + mm + yyyy;
+                } else ddmmyyyy = String(ddmmyyyy || '').trim();
+                r['ddmmyyyy'] = ddmmyyyy;
+                r['NISN'] = String(r['NISN'] || '').trim();
+                DATA.push(r);
+            }
+        }
+
+        async function loadData() {
+            const loadingEl = document.getElementById('loadingData');
+            const errorEl = document.getElementById('loadError');
+            const searchCard = document.getElementById('searchCard');
+
+            for (const url of XLSX_URLS) {
+                try {
+                    const resp = await fetch(url);
+                    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                    const buf = await resp.arrayBuffer();
+                    const wb = XLSX.read(buf, { type: 'array' });
+                    const ws = wb.Sheets[wb.SheetNames[0]];
+                    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+                    parseRows(rows);
+                    dataLoaded = true;
+                    loadingEl.classList.add('hidden');
+                    searchCard.classList.remove('hidden');
+                    return;
+                } catch (e) {
+                    console.warn('Fetch failed for ' + url, e);
+                }
+            }
+            loadingEl.classList.add('hidden');
+            errorEl.classList.remove('hidden');
+        }
+
+        function formatDate(s) {
+            s = String(s);
+            if (s.length === 8 && /^\d{8}$/.test(s)) {
+                const d = s.slice(0,2), m = s.slice(2,4), y = s.slice(4);
+                const mn = MONTHS[parseInt(m)-1] || m;
+                return d + ' ' + mn + ' ' + y;
+            }
+            return s;
+        }
+
+        function cleanNum(v) {
+            if (v === '' || v === null || v === undefined) return '';
+            if (typeof v === 'number') return String(Math.round(v));
+            return String(v).trim();
+        }
+
+        function findStudent(nisn, date) {
+            for (const r of DATA) {
+                if (r['NISN'] === nisn && r['ddmmyyyy'] === date) return r;
+            }
+            return null;
+        }
+
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('errorMsg').classList.add('hidden');
+            document.getElementById('resultCard').classList.add('hidden');
+            document.getElementById('pdfContainer').classList.add('hidden');
+
+            const nisn = document.getElementById('nisn').value.trim();
+            const date = document.getElementById('date').value.trim();
+            if (!nisn || !date) return;
+
+            document.getElementById('searchLoading').classList.remove('hidden');
+            document.getElementById('searchBtn').disabled = true;
+
+            setTimeout(() => {
+                document.getElementById('searchLoading').classList.add('hidden');
+                document.getElementById('searchBtn').disabled = false;
+
+                const student = findStudent(nisn, date);
+                if (student) {
+                    currentStudent = student;
+                    document.getElementById('dispNama').textContent = student['Nama'] || '-';
+                    document.getElementById('dispNISN').textContent = student['NISN'];
+                    document.getElementById('dispNoPeserta').textContent = student['Nomor_Peserta'] || '-';
+                    document.getElementById('dispMatScore').textContent = cleanNum(student['Matematika_Score']);
+                    document.getElementById('dispMatRating').textContent = student['Matematika_Rating'] || '-';
+                    document.getElementById('dispBindoScore').textContent = cleanNum(student['Bahasa_Indonesia_Score']);
+                    document.getElementById('dispBindoRating').textContent = student['Bahasa_Indonesia_Rating'] || '-';
+
+                    const mt = cleanNum(student['Matematika_Score']);
+                    const mr = student['Matematika_Rating'] || '-';
+                    const bt = cleanNum(student['Bahasa_Indonesia_Score']);
+                    const br = student['Bahasa_Indonesia_Rating'] || '-';
+                    const mtColor = mr === 'Baik' ? 'text-green-600' : mr === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
+                    const btColor = br === 'Baik' ? 'text-green-600' : br === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
+                    document.getElementById('dispMatRating').className = 'px-4 py-3 text-center font-semibold ' + mtColor;
+                    document.getElementById('dispBindoRating').className = 'px-4 py-3 text-center font-semibold ' + btColor;
+
+                    document.getElementById('resultCard').classList.remove('hidden');
+                } else {
+                    document.getElementById('errorText').textContent = 'Data tidak ditemukan. Periksa kembali NISN dan Tanggal Lahir.';
+                    document.getElementById('errorMsg').classList.remove('hidden');
+                }
+            }, 300);
+        });
+
+        document.getElementById('previewBtn').addEventListener('click', async function() {
+            if (!currentStudent) return;
+            document.getElementById('generateLoading').classList.remove('hidden');
+
+            const s = currentStudent;
+            document.getElementById('pdfNama').textContent = s['Nama'] || '';
+            document.getElementById('pdfTtl').textContent = formatDate(s['ddmmyyyy']);
+            document.getElementById('pdfNISN').textContent = s['NISN'];
+            document.getElementById('pdfNoPeserta').textContent = s['Nomor_Peserta'] || '';
+            document.getElementById('pdfMatScore').textContent = cleanNum(s['Matematika_Score']);
+            document.getElementById('pdfMatRating').textContent = s['Matematika_Rating'] || '';
+            document.getElementById('pdfBindoScore').textContent = cleanNum(s['Bahasa_Indonesia_Score']);
+            document.getElementById('pdfBindoRating').textContent = s['Bahasa_Indonesia_Rating'] || '';
+
+            const el = document.getElementById('pdfTemplate').cloneNode(true);
+            el.style.cssText = 'position:fixed;left:-9999px;top:0;';
+            el.id = 'pdfClone-' + Date.now();
+            document.body.appendChild(el);
+
+            try {
+                const blob = await html2pdf()
+                    .set({
+                        margin: [0, 0, 0, 0],
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true, logging: false, letterRendering: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                    })
+                    .from(el.querySelector('.pdf-template'))
+                    .outputPdf('blob');
+
+                const url = URL.createObjectURL(blob);
+                document.getElementById('pdfFrame').src = url;
+                document.getElementById('pdfContainer').classList.remove('hidden');
+
+                document.getElementById('downloadPdfBtn').onclick = function() {
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'Hasil_TKA_' + (s['Nama'] || '').replace(/\s+/g, '_') + '.pdf';
+                    a.click();
+                };
+            } catch (e) {
+                console.error(e);
+                document.getElementById('errorText').textContent = 'Gagal menghasilkan PDF. Silakan coba lagi.';
+                document.getElementById('errorMsg').classList.remove('hidden');
+            } finally {
+                el.remove();
+                document.getElementById('generateLoading').classList.add('hidden');
+            }
+        });
+
+        loadData();
+    </script>
 </body>
 </html>
