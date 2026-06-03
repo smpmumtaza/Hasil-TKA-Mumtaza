@@ -232,6 +232,11 @@
                         <p class="text-xs text-gray-400 mt-1">Ubah teks yang muncul di halaman publik</p>
                     </div>
                     <div class="p-4 sm:p-5" id="settingsList"></div>
+                    <div class="px-4 sm:px-5 pb-4 sm:pb-5 border-t border-gray-100 pt-4 text-right">
+                        <button id="saveSettingsBtn" class="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg px-4 py-2 transition">
+                            <i class="fas fa-save"></i> Simpan Pengaturan
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow">
@@ -911,19 +916,6 @@
                 </div>
             `).join('');
 
-            // Auto-save on change
-            document.querySelectorAll('.setting-input').forEach(inp => {
-                inp.addEventListener('change', async function() {
-                    const key = this.dataset.key;
-                    const val = this.value.trim();
-                    try {
-                        await supabase.from('settings').upsert({ key, value: val }, { onConflict: 'key' });
-                    } catch(e) {}
-                    cachedSettings[key] = val;
-                    localStorage.setItem('tka_settings_cache', JSON.stringify(cachedSettings));
-                });
-            });
-
             // Load saved template mapping if exists
             const savedMapping = localStorage.getItem('tka_template_mapping');
             const savedDocx = localStorage.getItem('tka_template_docx');
@@ -937,6 +929,26 @@
                 if (vars.length > 0) renderTemplateVars(vars);
             }
         }
+
+        document.getElementById('saveSettingsBtn').addEventListener('click', async function() {
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+            const inputs = document.querySelectorAll('.setting-input');
+            let ok = 0, fail = 0;
+            for (const inp of inputs) {
+                const key = inp.dataset.key;
+                const val = inp.value.trim();
+                try {
+                    await supabase.from('settings').upsert({ key, value: val }, { onConflict: 'key' });
+                    cachedSettings[key] = val;
+                    ok++;
+                } catch(e) { fail++; }
+            }
+            localStorage.setItem('tka_settings_cache', JSON.stringify(cachedSettings));
+            btn.innerHTML = '<i class="fas fa-check"></i> Tersimpan (' + ok + ' berhasil)';
+            setTimeout(() => { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Simpan Pengaturan'; }, 2000);
+        });
 
         // Template DOCX
         document.getElementById('uploadDocx').addEventListener('change', async function(e) {
