@@ -557,7 +557,7 @@
             }
         });
 
-        loadAppSettings().catch(()=>{}); loadData();
+        (async () => { await Promise.allSettled([loadAppSettings(), loadData()]); })();
     </script>
 </body>
 </html>
