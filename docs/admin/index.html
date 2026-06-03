@@ -67,10 +67,10 @@
         <!-- Tab Navigation -->
         <div class="bg-white shadow-sm border-b">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <div class="flex gap-1 -mb-px">
-                    <button class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 transition" data-tab="stats"><i class="fas fa-chart-pie mr-1"></i> Dashboard</button>
-                    <button class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 transition" data-tab="siswa"><i class="fas fa-users mr-1"></i> Data Siswa</button>
-                    <button class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 transition" data-tab="tahun"><i class="fas fa-calendar mr-1"></i> Tahun Ajaran</button>
+                <div class="flex flex-wrap gap-1 -mb-px overflow-x-auto">
+                    <button class="tab-btn px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition whitespace-nowrap" data-tab="stats"><i class="fas fa-chart-pie mr-1"></i> Dashboard</button>
+                    <button class="tab-btn px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition whitespace-nowrap" data-tab="siswa"><i class="fas fa-users mr-1"></i> Data Siswa</button>
+                    <button class="tab-btn px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition whitespace-nowrap" data-tab="tahun"><i class="fas fa-calendar mr-1"></i> Tahun Ajaran</button>
                 </div>
             </div>
         </div>
@@ -136,28 +136,28 @@
             <!-- ==================== TAB: DATA SISWA ==================== -->
             <div class="tab-content hidden" id="tab-siswa">
                 <div class="bg-white rounded-xl shadow">
-                    <div class="p-4 sm:p-5 border-b border-gray-200 flex flex-wrap items-center gap-3">
-                        <h3 class="text-sm font-semibold text-gray-600 mr-auto"><i class="fas fa-database mr-1"></i> Data Siswa</h3>
-                        <label class="inline-flex items-center gap-1.5 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg px-3 py-2 cursor-pointer transition">
+                    <div class="p-3 sm:p-5 border-b border-gray-200 flex flex-wrap items-center gap-2">
+                        <h3 class="text-xs sm:text-sm font-semibold text-gray-600 w-full sm:w-auto sm:mr-auto mb-1 sm:mb-0"><i class="fas fa-database mr-1"></i> Data Siswa</h3>
+                        <label class="inline-flex items-center gap-1 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 cursor-pointer transition whitespace-nowrap">
                             <i class="fas fa-upload"></i> Upload XLSX
                             <input type="file" id="uploadXlsx" accept=".xlsx,.xls" class="hidden">
                         </label>
-                        <button id="exportXlsxBtn" class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg px-3 py-2 transition">
+                        <button id="exportXlsxBtn" class="inline-flex items-center gap-1 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 transition whitespace-nowrap">
                             <i class="fas fa-download"></i> Download XLSX
                         </button>
-                        <button id="addSiswaBtn" class="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg px-3 py-2 transition">
+                        <button id="addSiswaBtn" class="inline-flex items-center gap-1 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 transition whitespace-nowrap">
                             <i class="fas fa-plus"></i> Tambah Siswa
                         </button>
                     </div>
-                    <div class="p-4 sm:p-5 border-b border-gray-200 flex flex-wrap items-center gap-3">
-                        <div class="relative flex-1 min-w-[200px]">
+                    <div class="p-3 sm:p-5 border-b border-gray-200 flex flex-wrap items-center gap-2">
+                        <div class="relative flex-1 min-w-[140px] sm:min-w-[200px]">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                            <input type="text" id="searchSiswa" placeholder="Cari nama, NISN, nomor peserta..." class="w-full rounded-lg border border-gray-300 pl-8 pr-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                            <input type="text" id="searchSiswa" placeholder="Cari..." class="w-full rounded-lg border border-gray-300 pl-8 pr-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
                         </div>
                         <select id="filterTahun" class="rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                            <option value="">Semua Tahun Ajaran</option>
+                            <option value="">Semua Tahun</option>
                         </select>
-                        <span class="text-xs text-gray-400" id="dataCount">0 data</span>
+                        <span class="text-xs text-gray-400 whitespace-nowrap" id="dataCount">0 data</span>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="min-w-full text-sm" id="siswaTable">
