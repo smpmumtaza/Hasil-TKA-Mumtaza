@@ -923,6 +923,19 @@
                     localStorage.setItem('tka_settings_cache', JSON.stringify(cachedSettings));
                 });
             });
+
+            // Load saved template mapping if exists
+            const savedMapping = localStorage.getItem('tka_template_mapping');
+            const savedDocx = localStorage.getItem('tka_template_docx');
+            if (savedDocx) {
+                document.getElementById('templateStatus').textContent = 'Template tersimpan di localStorage';
+                document.getElementById('saveTemplateBtn').disabled = false;
+            }
+            if (savedMapping) {
+                const mapping = JSON.parse(savedMapping);
+                const vars = Object.keys(mapping);
+                if (vars.length > 0) renderTemplateVars(vars);
+            }
         }
 
         // Template DOCX
@@ -959,15 +972,19 @@
             try {
                 const zip = await JSZip.loadAsync(buf);
                 const docFile = zip.file('word/document.xml');
-                if (!docFile) throw new Error('word/document.xml not found in DOCX');
+                if (!docFile) throw new Error('word/document.xml not found');
                 const xmlStr = await docFile.async('string');
-                const matches = xmlStr.match(/<<([^>]+)>>/g) || [];
+                // Strip XML tags to get plain text, then find <<...>>
+                const plainText = xmlStr.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+                const matches = plainText.match(/<<([^>]+)>>/g) || [];
                 const unique = [...new Set(matches.map(m => m.replace(/<<|>>/g, '').trim()))];
                 return unique.filter(v => v.length > 0);
             } catch(e) {
-                // Fallback: raw text search
+                console.warn('JSZip parse failed:', e);
+                // Fallback: search raw XML
                 const text = new TextDecoder('utf-8').decode(buf.slice(0, Math.min(buf.byteLength, 500000)));
-                const matches = text.match(/<<([^>]+)>>/g) || [];
+                const plainText = text.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+                const matches = plainText.match(/<<([^>]+)>>/g) || [];
                 const unique = [...new Set(matches.map(m => m.replace(/<<|>>/g, '').trim()))];
                 return unique.filter(v => v.length > 0);
             }
@@ -1003,7 +1020,7 @@
                 mapping[inp.dataset.var] = inp.value.trim();
             });
             localStorage.setItem('tka_template_mapping', JSON.stringify(mapping));
-            alert('Mapping template tersimpan.');
+            document.getElementById('templateStatus').textContent = 'Mapping tersimpan (' + Object.keys(mapping).length + ' variabel)';
         });
 
         // ===================================================================
