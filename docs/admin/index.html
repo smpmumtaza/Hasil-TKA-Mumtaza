@@ -600,9 +600,9 @@
                     <td class="px-3 py-2 text-gray-700 font-mono text-xs">${esc(r.NISN || '')}</td>
                     <td class="px-3 py-2 text-gray-600 text-xs">${esc(r.ddmmyyyy || '')}</td>
                     <td class="px-3 py-2 text-gray-600 text-xs font-mono">${esc(r.Nomor_Peserta || '')}</td>
-                    <td class="px-3 py-2 text-center text-xs text-gray-800">${r.Matematika_Score ?? ''}</td>
+                    <td class="px-3 py-2 text-center text-xs text-gray-800">${fmtSkor(r.Matematika_Score)}</td>
                     <td class="px-3 py-2 text-center text-xs">${ratingBadge(r.Matematika_Rating)}</td>
-                    <td class="px-3 py-2 text-center text-xs text-gray-800">${r.Bahasa_Indonesia_Score ?? ''}</td>
+                    <td class="px-3 py-2 text-center text-xs text-gray-800">${fmtSkor(r.Bahasa_Indonesia_Score)}</td>
                     <td class="px-3 py-2 text-center text-xs">${ratingBadge(r.Bahasa_Indonesia_Rating)}</td>
                     <td class="px-3 py-2 text-center text-xs"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs">${esc(r.Tahun_Ajaran || '')}</span></td>
                     <td class="px-3 py-2 text-center">
@@ -637,6 +637,13 @@
             if (!r) return '<span class="text-gray-400">-</span>';
             const color = r === 'Baik' ? 'text-green-600' : r === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
             return `<span class="${color} font-semibold">${esc(r)}</span>`;
+        }
+
+        function fmtSkor(v) {
+            if (v === '' || v === null || v === undefined) return '';
+            let n = typeof v === 'number' ? v : parseFloat(String(v).replace(',', '.'));
+            if (isNaN(n)) return String(v).trim();
+            return n.toFixed(2).replace('.', ',');
         }
 
         async function refreshFilterTahun() {
