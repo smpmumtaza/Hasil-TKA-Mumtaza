@@ -372,9 +372,9 @@
             const alamat = 'Jl. Kayu Manis 2 No.11 RT 01 RW 02. Pondok Cabe Udik, Pamulang, Tangerang Selatan 15417';
             txt('Alamat Sekolah', lx, y, { size: 11 });
             const alamatLines = wrapLines(font, ':  ' + alamat, col_w - 115, 11);
-            txt(alamatLines[0], lx + 110, y, { size: 11 }); y -= 18;
+            drawJustifiedLine(alamatLines[0].split(' '), lx + 110, y, col_w - 115, 11); y -= 18;
             for (let i = 1; i < alamatLines.length; i++) {
-                txt(alamatLines[i], lx + 5, y, { size: 11 });
+                drawJustifiedLine(alamatLines[i].split(' '), lx + 5, y, col_w - 115, 11);
                 y -= 18;
             }
             y -= 2;
