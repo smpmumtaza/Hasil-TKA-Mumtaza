@@ -334,14 +334,40 @@
             };
 
             // Title
-            let t = 'HASIL TES KEMAMPUAN AKADEMIK';
-            txt(t, cx - font.widthOfTextAtSize(t, 14)/2, 732, { size: 14, bold: true });
-            t = 'TAHUN PELAJARAN 2025/2026';
-            txt(t, cx - font.widthOfTextAtSize(t, 14)/2, 710, { size: 14, bold: true });
+            let t = 'SURAT KETERANGAN HASIL TES KEMAMPUAN AKADEMIK';
+            txt(t, cx - font.widthOfTextAtSize(t, 13)/2, 730, { size: 13, bold: true });
+            t = 'Nomor : 832/MIS-SMP/B/SKT/VI/2026';
+            txt(t, cx - font.widthOfTextAtSize(t, 11)/2, 708, { size: 11 });
 
-            // Info fields
-            const lx = px, vx = px + 210;
-            let y = 672;
+            // Preamble
+            const lx = px + 5;
+            let y = 680;
+            txt('Yang bertanda tangan di bawah ini :', lx, y, { size: 11 }); y -= 20;
+
+            const preamble = [
+                ['Nama', 'Khalimi, M.Pd'],
+                ['Jabatan', 'Kepala SMP Mumtaza Islamic School'],
+            ];
+            for (const [l, v] of preamble) {
+                txt(l, lx, y, { size: 11 });
+                txt(':  ' + v, lx + 110, y, { size: 11 });
+                y -= 20;
+            }
+
+            const alamat = 'Jl. Kayu Manis 2 No.11 RT 01 RW 02. Pondok Cabe Udik, Pamulang, Tangerang Selatan 15417';
+            txt('Alamat Sekolah', lx, y, { size: 11 });
+            const alamatLines = wrapLines(font, ':  ' + alamat, col_w - 115, 11);
+            txt(alamatLines[0], lx + 110, y, { size: 11 }); y -= 18;
+            for (let i = 1; i < alamatLines.length; i++) {
+                txt(alamatLines[i], lx + 5, y, { size: 11 });
+                y -= 18;
+            }
+            y -= 2;
+
+            txt('Menerangkan bahwa nama di bawah ini :', lx, y, { size: 11 }); y -= 22;
+
+            // Student info
+            const vx = lx + 180;
             const infos = [
                 ['Nama', student['Nama'] || ''],
                 ['Tempat dan Tanggal Lahir', formatDate(student['ddmmyyyy'])],
@@ -349,66 +375,37 @@
                 ['Nomor Peserta TKA', student['Nomor_Peserta'] || ''],
             ];
             for (const [l, v] of infos) {
-                txt(l, lx, y, { bold: true });
-                txt(':  ' + v, vx, y);
-                y -= 18;
+                txt(l, lx + 5, y, { bold: true, size: 11 });
+                txt(':  ' + v, vx, y, { size: 11 });
+                y -= 20;
             }
 
             // Body text
-            const bodyText = 'Berdasarkan hasil verifikasi oleh pihak sekolah pada data resmi yang disampaikan oleh Dinas Pendidikan Kota Tangerang Selatan, dengan ini kami sampaikan Hasil Tes Kemampuan Akademik (TKA) sebagai berikut :';
+            y -= 6;
+            const bodyText = 'Telah mengikuti Tes Kemampuan Akademik (TKA) Tahun Pelajaran 2025/2026 dengan hasil sebagai berikut :';
             const bodyLines = wrapLines(font, bodyText, col_w - 10, 11);
-            let by = y - 12;
             for (const line of bodyLines) {
-                const parts = line.split(/(Dinas Pendidikan Kota Tangerang Selatan|Hasil Tes Kemampuan Akademik \(TKA\))/);
-                let bx = px + 5;
-                if (parts.length === 1) {
-                    txt(line, bx, by, { size: 11 });
-                    bx += font.widthOfTextAtSize(line, 11);
-                } else {
-                    for (const seg of parts) {
-                        if (seg === 'Dinas Pendidikan Kota Tangerang Selatan' || seg === 'Hasil Tes Kemampuan Akademik (TKA)') {
-                            txt(seg, bx, by, { size: 11, bold: true });
-                            bx += bold.widthOfTextAtSize(seg, 11);
-                        } else {
-                            txt(seg, bx, by, { size: 11 });
-                            bx += font.widthOfTextAtSize(seg, 11);
-                        }
-                    }
-                }
-                by -= 16;
+                txt(line, px + 5, y, { size: 11 });
+                y -= 16;
             }
 
             // Score table
-            const tblY = by - 6;
-            const colW = [48, 207, 74, col_w - 48 - 207 - 74]; // ~48, 207, 74, rest
+            y -= 6;
+            const colW = [48, 207, 74, col_w - 48 - 207 - 74];
             const rows = [
                 ['No.', 'Mata Pelajaran', 'Nilai', 'Predikat'],
                 ['1.', 'Matematika', fmtSkor(student['Matematika_Score']), student['Matematika_Rating'] || ''],
                 ['2.', 'Bahasa Indonesia', fmtSkor(student['Bahasa_Indonesia_Score']), student['Bahasa_Indonesia_Rating'] || ''],
             ];
-            drawTable(page, font, bold, rows, px + 4, tblY, colW, 22);
-            const afterTbl = tblY - 22 * 3;
+            drawTable(page, font, bold, rows, px + 4, y, colW, 22);
+            const afterTbl = y - 22 * 3;
 
-            // Note text
-            const noteText = 'Catatan: Dokumen ini merupakan informasi sementara dari sekolah. Adapun Sertifikat Hasil Tes Kemampuan Akademik (SHTKA) akan disampaikan lebih lanjut.';
+            // Note after table
+            let ny = afterTbl - 14;
+            const noteText = 'Nilai tersebut berdasarkan Daftar Kolektif Hasil Tes Kemampuan Akademik (DKHTKA) Dinas Pendidikan dan Kebudayaan Kota Tangerang Selatan Tahun 2026.';
             const noteLines = wrapLines(font, noteText, col_w - 10, 11);
-            let ny = afterTbl - 12;
             for (const line of noteLines) {
-                const parts = line.split(/(Sertifikat Hasil Tes Kemampuan Akademik \(SHTKA\))/);
-                let nx = px + 5;
-                if (parts.length === 1) {
-                    txt(line, nx, ny, { size: 11 });
-                } else {
-                    for (const seg of parts) {
-                        if (seg === 'Sertifikat Hasil Tes Kemampuan Akademik (SHTKA)') {
-                            txt(seg, nx, ny, { size: 11, bold: true });
-                            nx += bold.widthOfTextAtSize(seg, 11);
-                        } else {
-                            txt(seg, nx, ny, { size: 11 });
-                            nx += font.widthOfTextAtSize(seg, 11);
-                        }
-                    }
-                }
+                txt(line, px + 5, ny, { size: 11 });
                 ny -= 16;
             }
 
@@ -417,7 +414,6 @@
             txt('Tangerang Selatan, 26 Mei 2026', px + 5, sigTop, { size: 11 });
             txt('Kepala Sekolah,', px + 5, sigTop - 18, { size: 11 });
 
-            // Signature image (width ≈ 110pt at original aspect)
             const sigW = 110;
             const sigH = sigW * sigImg.height / sigImg.width;
             page.drawImage(sigImg, { x: px + 5, y: sigTop - 18 - 8 - sigH, width: sigW, height: sigH });
