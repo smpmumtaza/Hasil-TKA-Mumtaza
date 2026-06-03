@@ -10,50 +10,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-    <script id="settingsScript">
-        window.APP_SETTINGS = {};
-        async function loadAppSettings() {
-            try {
-                const u = 'https://skiraowhzwtdcidnhply.supabase.co';
-                const k = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA';
-                const c = window.supabase.createClient(u, k);
-                const result = await Promise.race([
-                    c.from('settings').select('key,value'),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
-                ]);
-                if (!result.error && result.data) for (const r of result.data) window.APP_SETTINGS[r.key] = r.value;
-            } catch(e) {}
-            const d = { app_acronym:'TKA', app_subtitle:'Hasil Tes Kemampuan Akademik', nisn_label:'NISN', ttl_label:'Tanggal Lahir', no_peserta_label:'Nomor Peserta' };
-            for (const [k,v] of Object.entries(d)) if (!window.APP_SETTINGS[k]) window.APP_SETTINGS[k] = v;
-            applySettings();
-        }
-        function applySettings() {
-            const s = window.APP_SETTINGS;
-            document.title = 'Hasil ' + s.app_acronym + ' - SMP Mumtaza';
-            const el = document.getElementById('lblSubtitle');
-            if (el) el.textContent = s.app_subtitle;
-            const h = document.getElementById('lblSearchTitle');
-            if (h) h.textContent = 'Cari Hasil ' + s.app_acronym;
-            const d = document.getElementById('lblSearchDesc');
-            if (d) d.textContent = 'Masukkan ' + s.nisn_label + ' dan ' + s.ttl_label + ' untuk melihat hasil';
-            const ln = document.getElementById('lblNisn');
-            if (ln) ln.textContent = s.nisn_label;
-            const lt = document.getElementById('lblTtl');
-            if (lt) lt.textContent = s.ttl_label + ' (ddmmyyyy)';
-            const rn = document.getElementById('dispNisnLabel');
-            if (rn) rn.textContent = s.nisn_label;
-            const rp = document.getElementById('dispNoPesertaLabel');
-            if (rp) rp.textContent = s.no_peserta_label;
-        }
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' } }
-                }
-            }
-        }
-    </script>
 </head>
 <body class="min-h-screen bg-gray-50">
     <nav class="bg-primary-700 shadow-lg">
@@ -557,7 +513,36 @@
             }
         });
 
-        (async () => { await Promise.allSettled([loadAppSettings(), loadData()]); })();
+        window.APP_SETTINGS = {};
+        async function loadAppSettings() {
+            try {
+                const sC = window.supabase && window.supabase.createClient(
+                    'https://skiraowhzwtdcidnhply.supabase.co',
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA'
+                );
+                const result = await Promise.race([
+                    sC.from('settings').select('key,value'),
+                    new Promise((_, r) => setTimeout(() => r('timeout'), 3000))
+                ]);
+                if (result && result.data) for (const r of result.data) window.APP_SETTINGS[r.key] = r.value;
+            } catch(e) {}
+            const def = { app_acronym:'TKA', app_subtitle:'Hasil Tes Kemampuan Akademik', nisn_label:'NISN', ttl_label:'Tanggal Lahir', no_peserta_label:'Nomor Peserta' };
+            for (const [k,v] of Object.entries(def)) if (!window.APP_SETTINGS[k]) window.APP_SETTINGS[k] = v;
+            try {
+                const s = window.APP_SETTINGS;
+                document.title = 'Hasil ' + s.app_acronym + ' - SMP Mumtaza';
+                const g = id => document.getElementById(id);
+                if (g('lblSubtitle')) g('lblSubtitle').textContent = s.app_subtitle;
+                if (g('lblSearchTitle')) g('lblSearchTitle').textContent = 'Cari Hasil ' + s.app_acronym;
+                if (g('lblSearchDesc')) g('lblSearchDesc').textContent = 'Masukkan ' + s.nisn_label + ' dan ' + s.ttl_label + ' untuk melihat hasil';
+                if (g('lblNisn')) g('lblNisn').textContent = s.nisn_label;
+                if (g('lblTtl')) g('lblTtl').textContent = s.ttl_label + ' (ddmmyyyy)';
+                if (g('dispNisnLabel')) g('dispNisnLabel').textContent = s.nisn_label;
+                if (g('dispNoPesertaLabel')) g('dispNoPesertaLabel').textContent = s.no_peserta_label;
+            } catch(e) {}
+        }
+
+        loadAppSettings(); loadData();
     </script>
 </body>
 </html>
