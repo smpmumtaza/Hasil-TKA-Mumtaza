@@ -136,7 +136,6 @@
             <!-- ==================== TAB: DATA SISWA ==================== -->
             <div class="tab-content hidden" id="tab-siswa">
                 <div class="bg-white rounded-xl shadow">
-                    <!-- Toolbar -->
                     <div class="p-4 sm:p-5 border-b border-gray-200 flex flex-wrap items-center gap-3">
                         <h3 class="text-sm font-semibold text-gray-600 mr-auto"><i class="fas fa-database mr-1"></i> Data Siswa</h3>
                         <label class="inline-flex items-center gap-1.5 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg px-3 py-2 cursor-pointer transition">
@@ -150,7 +149,6 @@
                             <i class="fas fa-plus"></i> Tambah Siswa
                         </button>
                     </div>
-                    <!-- Search & Filter -->
                     <div class="p-4 sm:p-5 border-b border-gray-200 flex flex-wrap items-center gap-3">
                         <div class="relative flex-1 min-w-[200px]">
                             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
@@ -161,7 +159,6 @@
                         </select>
                         <span class="text-xs text-gray-400" id="dataCount">0 data</span>
                     </div>
-                    <!-- Table -->
                     <div class="overflow-x-auto">
                         <table class="min-w-full text-sm" id="siswaTable">
                             <thead class="bg-gray-50">
@@ -182,7 +179,6 @@
                             <tbody id="siswaBody" class="divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
-                    <!-- Pagination -->
                     <div class="p-4 border-t border-gray-200 flex items-center justify-between flex-wrap gap-2">
                         <div class="flex items-center gap-2 text-xs text-gray-500">
                             <span>Baris per halaman:</span>
@@ -239,53 +235,16 @@
             <form id="siswaForm" class="p-5 space-y-4">
                 <input type="hidden" id="editIndex" value="-1">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Nama</label>
-                        <input type="text" id="fNama" required class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">NISN</label>
-                        <input type="text" id="fNISN" required class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Tanggal Lahir (ddmmyyyy)</label>
-                        <input type="text" id="fDdmmyyyy" required maxlength="8" pattern="\d{8}" inputmode="numeric" placeholder="27072011" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Nomor Peserta</label>
-                        <input type="text" id="fNomorPeserta" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Matematika Score</label>
-                        <input type="number" id="fMatScore" step="0.01" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Predikat Matematika</label>
-                        <select id="fMatRating" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                            <option value="">-</option>
-                            <option>Baik</option>
-                            <option>Memadai</option>
-                            <option>Kurang</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">B. Indonesia Score</label>
-                        <input type="number" id="fBindoScore" step="0.01" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Predikat B. Indonesia</label>
-                        <select id="fBindoRating" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                            <option value="">-</option>
-                            <option>Baik</option>
-                            <option>Memadai</option>
-                            <option>Kurang</option>
-                        </select>
-                    </div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Nama</label><input type="text" id="fNama" required class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">NISN</label><input type="text" id="fNISN" required class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Tanggal Lahir (ddmmyyyy)</label><input type="text" id="fDdmmyyyy" required maxlength="8" pattern="\d{8}" inputmode="numeric" placeholder="27072011" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Nomor Peserta</label><input type="text" id="fNomorPeserta" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Matematika Score</label><input type="number" id="fMatScore" step="0.01" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Predikat Matematika</label><select id="fMatRating" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"><option value="">-</option><option>Baik</option><option>Memadai</option><option>Kurang</option></select></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">B. Indonesia Score</label><input type="number" id="fBindoScore" step="0.01" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></div>
+                    <div><label class="block text-xs font-medium text-gray-700 mb-1">Predikat B. Indonesia</label><select id="fBindoRating" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"><option value="">-</option><option>Baik</option><option>Memadai</option><option>Kurang</option></select></div>
                 </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Tahun Ajaran</label>
-                    <select id="fTahunAjaran" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></select>
-                </div>
+                <div><label class="block text-xs font-medium text-gray-700 mb-1">Tahun Ajaran</label><select id="fTahunAjaran" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></select></div>
                 <div class="flex gap-3 pt-2">
                     <button type="submit" class="flex-1 rounded-lg bg-primary-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-primary-700 transition">Simpan</button>
                     <button type="button" onclick="closeSiswaModal()" class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition">Batal</button>
@@ -303,10 +262,7 @@
             </div>
             <form id="tahunForm" class="p-5 space-y-4">
                 <input type="hidden" id="editTahunIndex" value="-1">
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Tahun Ajaran</label>
-                    <input type="text" id="fTahun" required placeholder="2025/2026" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
-                </div>
+                <div><label class="block text-xs font-medium text-gray-700 mb-1">Tahun Ajaran</label><input type="text" id="fTahun" required placeholder="2025/2026" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></div>
                 <div class="flex gap-3 pt-2">
                     <button type="submit" class="flex-1 rounded-lg bg-primary-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-primary-700 transition">Simpan</button>
                     <button type="button" onclick="closeTahunModal()" class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition">Batal</button>
@@ -326,70 +282,131 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        const STORAGE_KEY = 'tka_admin_data';
-        const TAHUN_KEY = 'tka_admin_tahun';
-        const DEFAULT_TAHUN_KEY = 'tka_admin_default_tahun';
-
+        const LOCAL_STORAGE_KEY = 'tka_admin_data';
         const XLSX_URLS = [
             '../Data%20TKA%20SMP%20Mumtaza.xlsx',
             'https://raw.githubusercontent.com/smpmumtaza/Hasil-TKA-Mumtaza/main/Data%20TKA%20SMP%20Mumtaza.xlsx'
         ];
 
-        // ===================================================================
-        // STATE
-        // ===================================================================
-        let DATA = [];             // Array of student objects
+        let DATA = [];
         let filteredData = [];
         let currentPage = 1;
+        let supabaseAvailable = true;
 
         // ===================================================================
-        // DATA PERSISTENCE
+        // SUPABASE HELPERS
         // ===================================================================
-        function loadData() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (raw) DATA = JSON.parse(raw);
-            } catch(e) { DATA = []; }
-            if (!DATA || !Array.isArray(DATA)) DATA = [];
+        async function supabaseLoadSiswa() {
+            const { data, error } = await supabase.from('siswa').select('*').order('id', { ascending: true });
+            if (error) throw error;
+            return data.map(r => ({
+                Nomor_Peserta: r.nomor_peserta || '',
+                NISN: r.nisn || '',
+                ddmmyyyy: r.ddmmyyyy || '',
+                Nama: r.nama || '',
+                Matematika_Score: r.matematika_score ?? '',
+                Matematika_Rating: r.matematika_rating || '',
+                Bahasa_Indonesia_Score: r.bahasa_indonesia_score ?? '',
+                Bahasa_Indonesia_Rating: r.bahasa_indonesia_rating || '',
+                Tahun_Ajaran: r.tahun_ajaran || '',
+                _id: r.id,
+            }));
         }
 
-        function saveData() {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); } catch(e) {}
+        async function supabaseInsertSiswa(obj) {
+            const { data, error } = await supabase.from('siswa').insert({
+                nomor_peserta: obj.Nomor_Peserta,
+                nisn: obj.NISN,
+                ddmmyyyy: obj.ddmmyyyy,
+                nama: obj.Nama,
+                matematika_score: obj.Matematika_Score || null,
+                matematika_rating: obj.Matematika_Rating,
+                bahasa_indonesia_score: obj.Bahasa_Indonesia_Score || null,
+                bahasa_indonesia_rating: obj.Bahasa_Indonesia_Rating,
+                tahun_ajaran: obj.Tahun_Ajaran,
+            }).select();
+            if (error) throw error;
+            return data && data[0] ? data[0].id : null;
         }
 
-        function loadTahunAjaran() {
-            try {
-                const raw = localStorage.getItem(TAHUN_KEY);
-                if (raw) return JSON.parse(raw);
-            } catch(e) {}
-            return ['2024/2025', '2025/2026', '2026/2027'];
+        async function supabaseUpdateSiswa(id, obj) {
+            const { error } = await supabase.from('siswa').update({
+                nomor_peserta: obj.Nomor_Peserta,
+                nisn: obj.NISN,
+                ddmmyyyy: obj.ddmmyyyy,
+                nama: obj.Nama,
+                matematika_score: obj.Matematika_Score || null,
+                matematika_rating: obj.Matematika_Rating,
+                bahasa_indonesia_score: obj.Bahasa_Indonesia_Score || null,
+                bahasa_indonesia_rating: obj.Bahasa_Indonesia_Rating,
+                tahun_ajaran: obj.Tahun_Ajaran,
+            }).eq('id', id);
+            if (error) throw error;
         }
 
-        function saveTahunAjaran(list) {
-            try { localStorage.setItem(TAHUN_KEY, JSON.stringify(list)); } catch(e) {}
+        async function supabaseDeleteSiswa(id) {
+            const { error } = await supabase.from('siswa').delete().eq('id', id);
+            if (error) throw error;
         }
 
-        function getDefaultTahun() {
-            return localStorage.getItem(DEFAULT_TAHUN_KEY) || '2025/2026';
+        async function supabaseDeleteAllSiswa() {
+            const { error } = await supabase.from('siswa').delete().neq('id', 0);
+            if (error) throw error;
         }
 
-        function setDefaultTahun(v) {
-            localStorage.setItem(DEFAULT_TAHUN_KEY, v);
+        async function supabaseBulkInsertSiswa(arr) {
+            const ins = arr.map(obj => ({
+                nomor_peserta: obj.Nomor_Peserta,
+                nisn: obj.NISN,
+                ddmmyyyy: obj.ddmmyyyy,
+                nama: obj.Nama,
+                matematika_score: obj.Matematika_Score || null,
+                matematika_rating: obj.Matematika_Rating,
+                bahasa_indonesia_score: obj.Bahasa_Indonesia_Score || null,
+                bahasa_indonesia_rating: obj.Bahasa_Indonesia_Rating,
+                tahun_ajaran: obj.Tahun_Ajaran,
+            }));
+            // Insert in batches of 100
+            for (let i = 0; i < ins.length; i += 100) {
+                const batch = ins.slice(i, i + 100);
+                const { error } = await supabase.from('siswa').insert(batch);
+                if (error) throw error;
+            }
+        }
+
+        // ----- Tahun Ajaran -----
+        async function supabaseLoadTahun() {
+            const { data, error } = await supabase.from('tahun_ajaran').select('*').order('id');
+            if (error) throw error;
+            return data || [];
+        }
+
+        async function supabaseInsertTahun(nama) {
+            const { data, error } = await supabase.from('tahun_ajaran').insert({ nama }).select();
+            if (error) throw error;
+            return data && data[0] ? data[0].id : null;
+        }
+
+        async function supabaseUpdateTahun(id, nama) {
+            const { error } = await supabase.from('tahun_ajaran').update({ nama }).eq('id', id);
+            if (error) throw error;
+        }
+
+        async function supabaseDeleteTahun(id) {
+            const { error } = await supabase.from('tahun_ajaran').delete().eq('id', id);
+            if (error) throw error;
+        }
+
+        async function supabaseSetDefaultTahun(nama) {
+            // Clear all defaults
+            await supabase.from('tahun_ajaran').update({ is_default: false }).neq('is_default', true).maybeSingle();
+            // Set new default
+            await supabase.from('tahun_ajaran').update({ is_default: true }).eq('nama', nama);
         }
 
         // ===================================================================
-        // XLSX LOAD / PARSE
+        // DATA LOADING
         // ===================================================================
-        async function loadXlsxFromUrl(url) {
-            const resp = await fetch(url);
-            if (!resp.ok) throw new Error('HTTP ' + resp.status);
-            const buf = await resp.arrayBuffer();
-            const wb = XLSX.read(buf, { type: 'array' });
-            const ws = wb.Sheets[wb.SheetNames[0]];
-            const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-            return rows.map(normalizeRow);
-        }
-
         function normalizeRow(r) {
             let d = r['ddmmyyyy'];
             if (typeof d === 'number') d = String(d);
@@ -407,26 +424,79 @@
                 Matematika_Rating: String(r['Matematika_Rating'] || '').trim(),
                 Bahasa_Indonesia_Score: r['Bahasa_Indonesia_Score'] ?? '',
                 Bahasa_Indonesia_Rating: String(r['Bahasa_Indonesia_Rating'] || '').trim(),
-                Tahun_Ajaran: String(r['Tahun_Ajaran'] || getDefaultTahun()).trim(),
+                Tahun_Ajaran: String(r['Tahun_Ajaran'] || '').trim(),
             };
         }
 
-        async function loadInitialData() {
-            loadData();
+        async function loadXlsxFromUrl(url) {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const buf = await resp.arrayBuffer();
+            const wb = XLSX.read(buf, { type: 'array' });
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+            return rows.map(normalizeRow);
+        }
+
+        async function loadAllData() {
+            // Try Supabase first
+            try {
+                DATA = await supabaseLoadSiswa();
+                supabaseAvailable = true;
+            } catch (e) {
+                supabaseAvailable = false;
+                console.warn('Supabase unavailable, using localStorage:', e);
+                try {
+                    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+                    if (raw) DATA = JSON.parse(raw);
+                } catch(e2) {}
+            }
+            if (!DATA || !Array.isArray(DATA)) DATA = [];
+            // If empty, seed from XLSX
             if (DATA.length === 0) {
                 for (const url of XLSX_URLS) {
                     try {
                         DATA = await loadXlsxFromUrl(url);
-                        // assign default tahun if empty
-                        const def = getDefaultTahun();
-                        for (const d of DATA) {
-                            if (!d.Tahun_Ajaran) d.Tahun_Ajaran = def;
-                        }
-                        saveData();
-                        return;
+                        break;
                     } catch(e) { console.warn('Failed:', url, e); }
                 }
+                // Save to Supabase if available
+                if (DATA.length > 0) {
+                    try {
+                        await supabaseBulkInsertSiswa(DATA);
+                        // Reload to get _id
+                        DATA = await supabaseLoadSiswa();
+                    } catch(e) {
+                        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DATA));
+                    }
+                }
             }
+        }
+
+        async function loadTahunAjaran() {
+            try {
+                const tahunData = await supabaseLoadTahun();
+                const names = tahunData.map(r => r.nama);
+                const def = tahunData.find(r => r.is_default);
+                if (def) setDefaultTahun(def.nama);
+                return names;
+            } catch(e) {
+                // Fallback localStorage
+                try {
+                    const raw = localStorage.getItem('tka_admin_tahun');
+                    if (raw) return JSON.parse(raw);
+                } catch(e2) {}
+                return ['2024/2025', '2025/2026', '2026/2027'];
+            }
+        }
+
+        function getDefaultTahun() {
+            return localStorage.getItem('tka_admin_default_tahun') || '2025/2026';
+        }
+
+        function setDefaultTahun(v) {
+            localStorage.setItem('tka_admin_default_tahun', v);
+            if (supabaseAvailable) supabaseSetDefaultTahun(v).catch(()=>{});
         }
 
         // ===================================================================
@@ -434,16 +504,12 @@
         // ===================================================================
         function exportXlsx() {
             const cols = ['Nomor_Peserta','NISN','ddmmyyyy','Nama','Matematika_Score','Matematika_Rating','Bahasa_Indonesia_Score','Bahasa_Indonesia_Rating','Tahun_Ajaran'];
-            const arr = DATA.map(r => {
-                const o = {};
-                for (const c of cols) o[c] = r[c] ?? '';
-                return o;
-            });
+            const arr = DATA.map(r => { const o={}; for(const c of cols) o[c]=r[c]??''; return o; });
             const ws = XLSX.utils.json_to_sheet(arr);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Data');
-            const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-            const blob = new Blob([buf], { type: 'application/octet-stream' });
+            const buf = XLSX.write(wb, { bookType:'xlsx', type:'array' });
+            const blob = new Blob([buf], { type:'application/octet-stream' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'Data_TKA_SMP_Mumtaza.xlsx';
@@ -456,40 +522,30 @@
         function renderSiswaTable() {
             const search = (document.getElementById('searchSiswa').value || '').toLowerCase();
             const filterTahun = document.getElementById('filterTahun').value;
-
             filteredData = DATA.filter(r => {
                 if (filterTahun && r.Tahun_Ajaran !== filterTahun) return false;
                 if (search) {
                     const s = search;
-                    const match = (r.Nama || '').toLowerCase().includes(s)
-                        || (r.NISN || '').toLowerCase().includes(s)
-                        || (r.Nomor_Peserta || '').toLowerCase().includes(s);
-                    if (!match) return false;
+                    if (!(r.Nama||'').toLowerCase().includes(s) && !(r.NISN||'').toLowerCase().includes(s) && !(r.Nomor_Peserta||'').toLowerCase().includes(s)) return false;
                 }
                 return true;
             });
-
             const perPage = parseInt(document.getElementById('perPage').value) || 20;
             const totalPages = Math.max(1, Math.ceil(filteredData.length / perPage));
             if (currentPage > totalPages) currentPage = totalPages;
             if (currentPage < 1) currentPage = 1;
-
             const start = (currentPage - 1) * perPage;
             const pageData = filteredData.slice(start, start + perPage);
-
             document.getElementById('dataCount').textContent = filteredData.length + ' data';
-
             const tbody = document.getElementById('siswaBody');
             if (pageData.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-gray-400 text-xs"><i class="fas fa-inbox mr-1"></i> Tidak ada data</td></tr>';
                 document.getElementById('pagination').innerHTML = '';
                 return;
             }
-
             const tahunList = loadTahunAjaran();
             tbody.innerHTML = pageData.map((r, i) => {
                 const idx = start + i;
-                const bisaEdit = idx < DATA.length;
                 return `<tr class="hover:bg-gray-50">
                     <td class="px-3 py-2 text-gray-400 text-xs">${idx + 1}</td>
                     <td class="px-3 py-2 text-gray-800 font-medium text-xs">${esc(r.Nama || '')}</td>
@@ -507,19 +563,13 @@
                     </td>
                 </tr>`;
             }).join('');
-
-            // Pagination
             let pagHtml = '';
             if (totalPages > 1) {
                 pagHtml += `<button onclick="goPage(${currentPage - 1})" class="px-2 py-1 rounded ${currentPage > 1 ? 'hover:bg-gray-200 text-gray-700' : 'text-gray-300 cursor-default'}"><i class="fas fa-chevron-left"></i></button>`;
                 for (let p = 1; p <= totalPages; p++) {
-                    if (p === currentPage) {
-                        pagHtml += `<span class="px-2 py-1 rounded bg-primary-100 text-primary-700 font-semibold">${p}</span>`;
-                    } else if (p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2) {
-                        pagHtml += `<button onclick="goPage(${p})" class="px-2 py-1 rounded hover:bg-gray-200 text-gray-600">${p}</button>`;
-                    } else if (Math.abs(p - currentPage) === 3) {
-                        pagHtml += `<span class="px-1 text-gray-400">..</span>`;
-                    }
+                    if (p === currentPage) pagHtml += `<span class="px-2 py-1 rounded bg-primary-100 text-primary-700 font-semibold">${p}</span>`;
+                    else if (p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2) pagHtml += `<button onclick="goPage(${p})" class="px-2 py-1 rounded hover:bg-gray-200 text-gray-600">${p}</button>`;
+                    else if (Math.abs(p - currentPage) === 3) pagHtml += `<span class="px-1 text-gray-400">..</span>`;
                 }
                 pagHtml += `<button onclick="goPage(${currentPage + 1})" class="px-2 py-1 rounded ${currentPage < totalPages ? 'hover:bg-gray-200 text-gray-700' : 'text-gray-300 cursor-default'}"><i class="fas fa-chevron-right"></i></button>`;
             }
@@ -533,11 +583,7 @@
             renderSiswaTable();
         }
 
-        function esc(s) {
-            const d = document.createElement('div');
-            d.textContent = s;
-            return d.innerHTML;
-        }
+        function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
         function ratingBadge(r) {
             if (!r) return '<span class="text-gray-400">-</span>';
@@ -545,13 +591,12 @@
             return `<span class="${color} font-semibold">${esc(r)}</span>`;
         }
 
-        function refreshFilterTahun() {
-            const tahunList = loadTahunAjaran();
+        async function refreshFilterTahun() {
+            const tahunList = await loadTahunAjaran();
             const sel = document.getElementById('filterTahun');
             const cur = sel.value;
             sel.innerHTML = '<option value="">Semua Tahun Ajaran</option>' + tahunList.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
             sel.value = cur;
-            // Also refresh modal dropdown
             const fTahun = document.getElementById('fTahunAjaran');
             if (fTahun) {
                 const cur2 = fTahun.value;
@@ -567,8 +612,6 @@
         function openSiswaModal(idx) {
             document.getElementById('editIndex').value = idx;
             document.getElementById('siswaModal').classList.remove('hidden');
-            refreshFilterTahun();
-
             if (idx >= 0 && idx < DATA.length) {
                 const r = DATA[idx];
                 document.getElementById('modalSiswaTitle').innerHTML = '<i class="fas fa-edit mr-1"></i> Edit Siswa';
@@ -583,34 +626,28 @@
                 document.getElementById('fTahunAjaran').value = r.Tahun_Ajaran || getDefaultTahun();
             } else {
                 document.getElementById('modalSiswaTitle').innerHTML = '<i class="fas fa-plus mr-1"></i> Tambah Siswa';
-                document.getElementById('fNama').value = '';
-                document.getElementById('fNISN').value = '';
-                document.getElementById('fDdmmyyyy').value = '';
-                document.getElementById('fNomorPeserta').value = '';
-                document.getElementById('fMatScore').value = '';
-                document.getElementById('fMatRating').value = '';
-                document.getElementById('fBindoScore').value = '';
-                document.getElementById('fBindoRating').value = '';
+                ['fNama','fNISN','fDdmmyyyy','fNomorPeserta','fMatScore','fMatRating','fBindoScore','fBindoRating'].forEach(id => document.getElementById(id).value = '');
                 document.getElementById('fTahunAjaran').value = getDefaultTahun();
             }
+            refreshFilterTahun();
         }
 
-        function closeSiswaModal() {
-            document.getElementById('siswaModal').classList.add('hidden');
-        }
-
+        function closeSiswaModal() { document.getElementById('siswaModal').classList.add('hidden'); }
         function editSiswa(idx) { openSiswaModal(idx); }
 
-        function deleteSiswa(idx) {
+        async function deleteSiswa(idx) {
             if (idx < 0 || idx >= DATA.length) return;
             const r = DATA[idx];
             if (!confirm(`Hapus data siswa ${r.Nama || r.NISN}?`)) return;
+            const _id = DATA[idx]._id;
             DATA.splice(idx, 1);
-            saveData();
+            if (_id && supabaseAvailable) {
+                try { await supabaseDeleteSiswa(_id); } catch(e) { console.warn('Delete failed:', e); }
+            }
             renderSiswaTable();
         }
 
-        document.getElementById('siswaForm').addEventListener('submit', function(e) {
+        document.getElementById('siswaForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const idx = parseInt(document.getElementById('editIndex').value);
             const obj = {
@@ -625,11 +662,22 @@
                 Tahun_Ajaran: document.getElementById('fTahunAjaran').value,
             };
             if (idx >= 0 && idx < DATA.length) {
-                DATA[idx] = obj;
+                const _id = DATA[idx]._id;
+                if (_id && supabaseAvailable) {
+                    try { await supabaseUpdateSiswa(_id, obj); } catch(e) { console.warn('Update failed:', e); }
+                }
+                DATA[idx] = { ...obj, _id };
             } else {
-                DATA.push(obj);
+                if (supabaseAvailable) {
+                    try {
+                        const newId = await supabaseInsertSiswa(obj);
+                        DATA.push({ ...obj, _id: newId });
+                    } catch(e) { console.warn('Insert failed:', e); DATA.push(obj); }
+                } else {
+                    DATA.push(obj);
+                    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DATA));
+                }
             }
-            saveData();
             closeSiswaModal();
             renderSiswaTable();
         });
@@ -646,25 +694,26 @@
                 const ws = wb.Sheets[wb.SheetNames[0]];
                 const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
                 const def = getDefaultTahun();
-                DATA = rows.map(r => {
-                    const n = normalizeRow(r);
-                    if (!n.Tahun_Ajaran) n.Tahun_Ajaran = def;
-                    return n;
-                });
-                saveData();
+                const newData = rows.map(r => { const n = normalizeRow(r); if (!n.Tahun_Ajaran) n.Tahun_Ajaran = def; return n; });
+                if (supabaseAvailable) {
+                    await supabaseDeleteAllSiswa();
+                    await supabaseBulkInsertSiswa(newData);
+                    DATA = await supabaseLoadSiswa();
+                } else {
+                    DATA = newData;
+                    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DATA));
+                }
                 renderSiswaTable();
                 renderTahunTable();
-                alert('Data berhasil diupload: ' + DATA.length + ' siswa.');
+                alert('Data berhasil diupload: ' + newData.length + ' siswa.');
             } catch(err) {
-                alert('Gagal membaca file: ' + err.message);
+                alert('Gagal: ' + err.message);
             }
             this.value = '';
         });
 
         document.getElementById('exportXlsxBtn').addEventListener('click', exportXlsx);
         document.getElementById('addSiswaBtn').addEventListener('click', () => openSiswaModal(-1));
-
-        // Search & filter
         document.getElementById('searchSiswa').addEventListener('input', () => { currentPage = 1; renderSiswaTable(); });
         document.getElementById('filterTahun').addEventListener('change', () => { currentPage = 1; renderSiswaTable(); });
         document.getElementById('perPage').addEventListener('change', () => { currentPage = 1; renderSiswaTable(); });
@@ -672,14 +721,11 @@
         // ===================================================================
         // TAHUN AJARAN CRUD
         // ===================================================================
-        function renderTahunTable() {
-            const tahunList = loadTahunAjaran();
+        async function renderTahunTable() {
+            const tahunList = await loadTahunAjaran();
             const def = getDefaultTahun();
             const counts = {};
-            for (const r of DATA) {
-                const t = r.Tahun_Ajaran || '(tanpa)';
-                counts[t] = (counts[t] || 0) + 1;
-            }
+            for (const r of DATA) { const t = r.Tahun_Ajaran || '(tanpa)'; counts[t] = (counts[t] || 0) + 1; }
             const tbody = document.getElementById('tahunBody');
             if (tahunList.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-gray-400 text-xs"><i class="fas fa-calendar-times mr-1"></i> Belum ada tahun ajaran</td></tr>';
@@ -693,8 +739,6 @@
                     </td>
                 </tr>`).join('');
             }
-
-            // Default dropdown
             const defSel = document.getElementById('defaultTahun');
             const curDef = defSel.value;
             defSel.innerHTML = tahunList.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
@@ -711,63 +755,61 @@
             document.getElementById('editTahunIndex').value = idx;
             document.getElementById('tahunModal').classList.remove('hidden');
             if (idx >= 0) {
-                const tahunList = loadTahunAjaran();
                 document.getElementById('modalTahunTitle').innerHTML = '<i class="fas fa-edit mr-1"></i> Edit Tahun Ajaran';
-                document.getElementById('fTahun').value = tahunList[idx] || '';
+                document.getElementById('fTahun').value = '';
+                loadTahunAjaran().then(list => { document.getElementById('fTahun').value = list[idx] || ''; });
             } else {
                 document.getElementById('modalTahunTitle').innerHTML = '<i class="fas fa-plus mr-1"></i> Tambah Tahun Ajaran';
                 document.getElementById('fTahun').value = '';
             }
         }
 
-        function closeTahunModal() {
-            document.getElementById('tahunModal').classList.add('hidden');
-        }
-
+        function closeTahunModal() { document.getElementById('tahunModal').classList.add('hidden'); }
         function editTahun(idx) { openTahunModal(idx); }
 
-        function deleteTahun(idx) {
-            const tahunList = loadTahunAjaran();
+        async function deleteTahun(idx) {
+            const tahunList = await loadTahunAjaran();
             const t = tahunList[idx];
             if (!t) return;
             const count = DATA.filter(r => r.Tahun_Ajaran === t).length;
-            const msg = count > 0
-                ? `Hapus tahun ajaran "${t}"? ${count} siswa dengan tahun ini akan dikosongkan.`
-                : `Hapus tahun ajaran "${t}"?`;
-            if (!confirm(msg)) return;
-            tahunList.splice(idx, 1);
-            saveTahunAjaran(tahunList);
-            // Remove from data
-            for (const r of DATA) {
-                if (r.Tahun_Ajaran === t) r.Tahun_Ajaran = '';
+            if (!confirm(count > 0 ? `Hapus tahun ajaran "${t}"? ${count} siswa akan dikosongkan tahunnya.` : `Hapus tahun ajaran "${t}"?`)) return;
+            // Find id in Supabase
+            if (supabaseAvailable) {
+                try {
+                    const tahunData = await supabaseLoadTahun();
+                    const target = tahunData.find(r => r.nama === t);
+                    if (target) await supabaseDeleteTahun(target.id);
+                } catch(e) { console.warn('Delete tahun failed:', e); }
             }
-            saveData();
-            refreshFilterTahun();
+            // Remove from data
+            for (const r of DATA) { if (r.Tahun_Ajaran === t) r.Tahun_Ajaran = ''; }
             renderTahunTable();
+            refreshFilterTahun();
         }
 
-        document.getElementById('tahunForm').addEventListener('submit', function(e) {
+        document.getElementById('tahunForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const idx = parseInt(document.getElementById('editTahunIndex').value);
             const val = document.getElementById('fTahun').value.trim();
             if (!val) return;
-            const tahunList = loadTahunAjaran();
-            if (idx >= 0 && idx < tahunList.length) {
-                const old = tahunList[idx];
-                tahunList[idx] = val;
-                // Update data
-                for (const r of DATA) {
-                    if (r.Tahun_Ajaran === old) r.Tahun_Ajaran = val;
-                }
-            } else {
-                if (tahunList.includes(val)) {
-                    alert('Tahun ajaran "' + val + '" sudah ada.');
-                    return;
-                }
-                tahunList.push(val);
+            if (supabaseAvailable) {
+                try {
+                    const tahunData = await supabaseLoadTahun();
+                    if (idx >= 0 && idx < tahunData.length) {
+                        const old = tahunData[idx].nama;
+                        const targetId = tahunData[idx].id;
+                        await supabaseUpdateTahun(targetId, val);
+                        // Update siswa
+                        for (const r of DATA) { if (r.Tahun_Ajaran === old) r.Tahun_Ajaran = val; }
+                        if (supabaseAvailable) {
+                            await supabase.from('siswa').update({ tahun_ajaran: val }).eq('tahun_ajaran', old);
+                        }
+                    } else {
+                        if (tahunData.some(r => r.nama === val)) { alert('Tahun ajaran "' + val + '" sudah ada.'); return; }
+                        await supabaseInsertTahun(val);
+                    }
+                } catch(e) { console.warn('Tahun CRUD failed:', e); }
             }
-            saveTahunAjaran(tahunList);
-            saveData();
             closeTahunModal();
             refreshFilterTahun();
             renderTahunTable();
@@ -792,11 +834,10 @@
                 if (this.dataset.tab === 'tahun') renderTahunTable();
             });
         });
-        // Activate first tab by default
         document.querySelector('.tab-btn').click();
 
         // ===================================================================
-        // DASHBOARD (EXISTING)
+        // DASHBOARD
         // ===================================================================
         let histChart, pieChart, timeChart;
 
@@ -809,10 +850,7 @@
 
         async function getLogs() {
             try {
-                const { data, error } = await supabase
-                    .from('downloads')
-                    .select('*')
-                    .order('created_at', { ascending: false });
+                const { data, error } = await supabase.from('downloads').select('*').order('created_at', { ascending: false });
                 if (!error && data) return data.map(r => ({ nisn: r.nisn, nama: r.nama, tgl: r.created_at }));
             } catch(e) {}
             try { return JSON.parse(localStorage.getItem('tka_downloads') || '[]'); } catch(e) { return []; }
@@ -827,110 +865,47 @@
             document.getElementById('totalDownloads').textContent = total;
             document.getElementById('uniqueStudents').textContent = unique;
             document.getElementById('todayCount').textContent = todayCount;
-
             const map = {};
-            for (const l of logs) {
-                const key = l.nisn || '(kosong)';
-                if (!map[key]) map[key] = { nisn: key, nama: l.nama || '', count: 0 };
-                map[key].count++;
-            }
+            for (const l of logs) { const key = l.nisn || '(kosong)'; if (!map[key]) map[key] = { nisn: key, nama: l.nama || '', count: 0 }; map[key].count++; }
             const entries = Object.values(map).sort((a,b) => b.count - a.count);
             const labels = entries.map(e => e.nisn + ' ' + e.nama.split(' ').slice(0,1));
             const counts = entries.map(e => e.count);
             const colors = entries.map((_,i) => `hsl(${(i*360/entries.length+180)%360},65%,55%)`);
-
             if (histChart) { histChart.destroy(); histChart = null; }
             if (pieChart) { pieChart.destroy(); pieChart = null; }
             if (timeChart) { timeChart.destroy(); timeChart = null; }
-
-            const commonOpts = {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { labels: { boxWidth: 12, padding: 8, font: { size: 10 } } } }
-            };
-
+            const commonOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { boxWidth: 12, padding: 8, font: { size: 10 } } } } };
             const ctx1 = document.getElementById('histChart').getContext('2d');
-            histChart = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: labels.slice(0,15),
-                    datasets: [{
-                        label: 'Download',
-                        data: counts.slice(0,15),
-                        backgroundColor: colors.slice(0,15),
-                        borderRadius: 4,
-                    }]
-                },
-                options: { ...commonOpts, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-            });
-
+            histChart = new Chart(ctx1, { type:'bar', data: { labels: labels.slice(0,15), datasets: [{ label:'Download', data: counts.slice(0,15), backgroundColor: colors.slice(0,15), borderRadius: 4 }] }, options: { ...commonOpts, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
             const ctx2 = document.getElementById('pieChart').getContext('2d');
             const pieLabels = entries.slice(0,8).map(e => e.nisn);
             const pieData = entries.slice(0,8).map(e => e.count);
             if (entries.length > 8) { pieLabels.push('Lainnya'); pieData.push(entries.slice(8).reduce((s,e) => s + e.count, 0)); }
-            pieChart = new Chart(ctx2, {
-                type: 'pie',
-                data: {
-                    labels: pieLabels,
-                    datasets: [{ data: pieData, backgroundColor: ['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316','#94a3b8'] }]
-                },
-                options: { ...commonOpts, plugins: { ...commonOpts.plugins, legend: { ...commonOpts.plugins.legend, position: 'right' } } }
-            });
-
+            pieChart = new Chart(ctx2, { type:'pie', data: { labels: pieLabels, datasets: [{ data: pieData, backgroundColor: ['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f97316','#94a3b8'] }] }, options: { ...commonOpts, plugins: { ...commonOpts.plugins, legend: { ...commonOpts.plugins.legend, position:'right' } } } });
             const ctx3 = document.getElementById('timeChart').getContext('2d');
             const dayMap = {};
-            for (const l of logs) {
-                const d = (wib(l.tgl || '') || '').slice(0,10);
-                if (d) dayMap[d] = (dayMap[d] || 0) + 1;
-            }
+            for (const l of logs) { const d = (wib(l.tgl || '') || '').slice(0,10); if (d) dayMap[d] = (dayMap[d] || 0) + 1; }
             const sortedDays = Object.keys(dayMap).sort();
-            timeChart = new Chart(ctx3, {
-                type: 'line',
-                data: {
-                    labels: sortedDays,
-                    datasets: [{
-                        label: 'Download',
-                        data: sortedDays.map(d => dayMap[d]),
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59,130,246,0.1)',
-                        fill: true,
-                        tension: 0.3,
-                        pointRadius: 3,
-                    }]
-                },
-                options: { ...commonOpts, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-            });
-
+            timeChart = new Chart(ctx3, { type:'line', data: { labels: sortedDays, datasets: [{ label:'Download', data: sortedDays.map(d => dayMap[d]), borderColor:'#3b82f6', backgroundColor:'rgba(59,130,246,0.1)', fill:true, tension:0.3, pointRadius:3 }] }, options: { ...commonOpts, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } } });
             const tbody = document.getElementById('logBody');
-            tbody.innerHTML = logs.slice().reverse().map((l, i) => `<tr class="hover:bg-gray-50">
-                <td class="px-4 py-2.5 text-gray-400">${logs.length - i}</td>
-                <td class="px-4 py-2.5 font-mono text-gray-800">${l.nisn || '-'}</td>
-                <td class="px-4 py-2.5 text-gray-700">${l.nama || '-'}</td>
-                <td class="px-4 py-2.5 text-gray-500">${(wib(l.tgl || '') || '').slice(11,19)}</td>
-                <td class="px-4 py-2.5 text-gray-500">${(wib(l.tgl || '') || '').slice(0,10)}</td>
-            </tr>`).join('');
-
-            document.getElementById('clearBtn').onclick = function() {
-                if (confirm('Hapus semua data download?')) {
-                    localStorage.removeItem('tka_downloads');
-                    renderDashboard();
-                }
-            };
+            tbody.innerHTML = logs.slice().reverse().map((l, i) => `<tr class="hover:bg-gray-50"><td class="px-4 py-2.5 text-gray-400">${logs.length - i}</td><td class="px-4 py-2.5 font-mono text-gray-800">${l.nisn || '-'}</td><td class="px-4 py-2.5 text-gray-700">${l.nama || '-'}</td><td class="px-4 py-2.5 text-gray-500">${(wib(l.tgl || '') || '').slice(11,19)}</td><td class="px-4 py-2.5 text-gray-500">${(wib(l.tgl || '') || '').slice(0,10)}</td></tr>`).join('');
+            document.getElementById('clearBtn').onclick = function() { if (confirm('Hapus semua data download?')) { localStorage.removeItem('tka_downloads'); renderDashboard(); } };
         }
 
         // ===================================================================
-        // LOGIN / LOGOUT
+        // LOGIN / LOGOUT / INIT
         // ===================================================================
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const u = document.getElementById('user').value;
             const p = document.getElementById('pass').value;
             if (u === ADMIN_USER && p === ADMIN_PASS) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
-                loadData();
+                await loadAllData();
                 renderDashboard().then();
-                refreshFilterTahun();
-                renderTahunTable();
+                await refreshFilterTahun();
+                await renderTahunTable();
             } else {
                 document.getElementById('loginErr').classList.remove('hidden');
             }
@@ -945,13 +920,6 @@
         });
 
         setInterval(() => { if (!document.getElementById('dashboard').classList.contains('hidden')) renderDashboard().catch(()=>{}); }, 30000);
-
-        // ===================================================================
-        // INIT
-        // ===================================================================
-        loadInitialData().then(() => {
-            // Data ready
-        });
     </script>
 </body>
 </html>
