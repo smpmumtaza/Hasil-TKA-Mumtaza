@@ -6,7 +6,34 @@
     <title>Hasil TKA - SMP Mumtaza</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <script id="settingsScript">
+        window.APP_SETTINGS = {};
+        async function loadAppSettings() {
+            try {
+                const u = 'https://skiraowhzwtdcidnhply.supabase.co';
+                const k = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA';
+                const c = window.supabase.createClient(u, k);
+                const { data, error } = await c.from('settings').select('key,value');
+                if (!error && data) for (const r of data) window.APP_SETTINGS[r.key] = r.value;
+            } catch(e) {}
+            const d = { app_acronym:'TKA', app_subtitle:'Hasil Tes Kemampuan Akademik', nisn_label:'NISN', ttl_label:'Tanggal Lahir', no_peserta_label:'Nomor Peserta' };
+            for (const [k,v] of Object.entries(d)) if (!window.APP_SETTINGS[k]) window.APP_SETTINGS[k] = v;
+            applySettings();
+        }
+        function applySettings() {
+            const s = window.APP_SETTINGS;
+            document.title = 'Hasil ' + s.app_acronym + ' - SMP Mumtaza';
+            const el = document.getElementById('lblSubtitle');
+            if (el) el.textContent = s.app_subtitle;
+            const ln = document.getElementById('lblNisn');
+            if (ln) ln.textContent = s.nisn_label;
+            const lt = document.getElementById('lblTtl');
+            if (lt) lt.textContent = s.ttl_label + ' (ddmmyyyy)';
+        }
+    </script>
     <script>
+        tailwind.config = { theme: { extend: { colors: { primary: { 50:'#eff6ff',100:'#dbeafe',200:'#bfdbfe',300:'#93c5fd',400:'#60a5fa',500:'#3b82f6',600:'#2563eb',700:'#1d4ed8',800:'#1e40af',900:'#1e3a8a' } } } } };
         tailwind.config = {
             theme: {
                 extend: {
@@ -29,7 +56,7 @@
                         </div>
                         <div>
                             <h1 class="text-lg font-bold text-white">SMP Mumtaza</h1>
-                            <p class="text-xs text-primary-100 -mt-1">Hasil Tes Kemampuan Akademik</p>
+                            <p class="text-xs text-primary-100 -mt-1" id="lblSubtitle">Hasil Tes Kemampuan Akademik</p>
                         </div>
                     </div>
                 </div>
@@ -46,7 +73,7 @@
                 <form id="searchForm" class="space-y-4">
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <label for="nisn" class="block text-sm font-medium text-gray-700">NISN</label>
+                            <label for="nisn" class="block text-sm font-medium text-gray-700" id="lblNisn">NISN</label>
                             <div class="relative mt-1">
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                     <i class="fas fa-id-card text-gray-400"></i>
@@ -287,6 +314,8 @@
                 downloadBtn.innerHTML = '<i class="fas fa-download"></i> Download DOCX';
             }
         });
+
+        loadAppSettings();
     </script>
 </body>
 </html>

@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -71,6 +72,7 @@
                     <button class="tab-btn px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition whitespace-nowrap" data-tab="stats"><i class="fas fa-chart-pie mr-1"></i> Dashboard</button>
                     <button class="tab-btn px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition whitespace-nowrap" data-tab="siswa"><i class="fas fa-users mr-1"></i> Data Siswa</button>
                     <button class="tab-btn px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition whitespace-nowrap" data-tab="tahun"><i class="fas fa-calendar mr-1"></i> Tahun Ajaran</button>
+                    <button class="tab-btn px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold border-b-2 transition whitespace-nowrap" data-tab="pengaturan"><i class="fas fa-cog mr-1"></i> Pengaturan</button>
                 </div>
             </div>
         </div>
@@ -218,6 +220,47 @@
                             </thead>
                             <tbody id="tahunBody" class="divide-y divide-gray-100"></tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== TAB: PENGATURAN ==================== -->
+            <div class="tab-content hidden" id="tab-pengaturan">
+                <div class="bg-white rounded-xl shadow mb-6">
+                    <div class="p-4 sm:p-5 border-b border-gray-200">
+                        <h3 class="text-sm font-semibold text-gray-600"><i class="fas fa-tags mr-1"></i> Label Sistem</h3>
+                        <p class="text-xs text-gray-400 mt-1">Ubah teks yang muncul di halaman publik</p>
+                    </div>
+                    <div class="p-4 sm:p-5" id="settingsList"></div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow">
+                    <div class="p-4 sm:p-5 border-b border-gray-200">
+                        <h3 class="text-sm font-semibold text-gray-600"><i class="fas fa-file-word mr-1"></i> Template DOCX</h3>
+                        <p class="text-xs text-gray-400 mt-1">Upload template.docx untuk melihat & mengedit variabel yang tersedia</p>
+                    </div>
+                    <div class="p-4 sm:p-5 border-b border-gray-200 flex flex-wrap items-center gap-3">
+                        <label class="inline-flex items-center gap-1.5 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg px-3 py-2 cursor-pointer transition">
+                            <i class="fas fa-upload"></i> Upload template.docx
+                            <input type="file" id="uploadDocx" accept=".docx" class="hidden">
+                        </label>
+                        <span class="text-xs text-gray-400" id="templateStatus">Belum ada template</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">Variabel</th>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">Nilai / Mapping</th>
+                                </tr>
+                            </thead>
+                            <tbody id="templateVarsBody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                    <div class="p-4 border-t border-gray-200 text-right">
+                        <button id="saveTemplateBtn" class="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg px-4 py-2 transition disabled:opacity-50" disabled>
+                            <i class="fas fa-save"></i> Simpan Mapping Template
+                        </button>
                     </div>
                 </div>
             </div>
@@ -818,6 +861,152 @@
         document.getElementById('addTahunBtn').addEventListener('click', () => openTahunModal(-1));
 
         // ===================================================================
+        // SETTINGS / PENGATURAN
+        // ===================================================================
+        let cachedSettings = {};
+
+        async function loadSettings() {
+            cachedSettings = {};
+            try {
+                const { data, error } = await supabase.from('settings').select('key,value');
+                if (!error && data) for (const r of data) cachedSettings[r.key] = r.value;
+            } catch(e) {}
+            // Fallback defaults
+            if (!cachedSettings.app_acronym) cachedSettings.app_acronym = 'TKA';
+            if (!cachedSettings.app_title) cachedSettings.app_title = 'Sistem Hasil TKA SMP Mumtaza';
+            if (!cachedSettings.app_subtitle) cachedSettings.app_subtitle = 'Hasil Tes Kemampuan Akademik';
+            if (!cachedSettings.nisn_label) cachedSettings.nisn_label = 'NISN';
+            if (!cachedSettings.ttl_label) cachedSettings.ttl_label = 'Tanggal Lahir';
+            if (!cachedSettings.no_peserta_label) cachedSettings.no_peserta_label = 'Nomor Peserta';
+            try { localStorage.setItem('tka_settings_cache', JSON.stringify(cachedSettings)); } catch(e) {}
+            return cachedSettings;
+        }
+
+        function getCachedSettings() {
+            try {
+                const raw = localStorage.getItem('tka_settings_cache');
+                if (raw) return JSON.parse(raw);
+            } catch(e) {}
+            return cachedSettings;
+        }
+
+        async function renderPengaturan() {
+            const settings = await loadSettings();
+            const list = document.getElementById('settingsList');
+            const keys = [
+                { key: 'app_acronym', label: 'Akronim Aplikasi', desc: 'Contoh: TKA' },
+                { key: 'app_title', label: 'Judul Aplikasi', desc: 'Contoh: Sistem Hasil TKA SMP Mumtaza' },
+                { key: 'app_subtitle', label: 'Subjudul', desc: 'Contoh: Hasil Tes Kemampuan Akademik' },
+                { key: 'nisn_label', label: 'Label NISN', desc: 'Contoh: NISN' },
+                { key: 'ttl_label', label: 'Label Tanggal Lahir', desc: 'Contoh: Tanggal Lahir' },
+                { key: 'no_peserta_label', label: 'Label Nomor Peserta', desc: 'Contoh: Nomor Peserta' },
+            ];
+            list.innerHTML = keys.map(k => `
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3 pb-3 border-b border-gray-100 last:border-0 last:mb-0 last:pb-0">
+                    <div class="sm:w-48 flex-shrink-0">
+                        <label class="text-xs font-medium text-gray-700">${k.label}</label>
+                        <p class="text-xs text-gray-400">${k.desc}</p>
+                    </div>
+                    <input type="text" class="setting-input flex-1 rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500" data-key="${k.key}" value="${esc(settings[k.key] || '')}">
+                </div>
+            `).join('');
+
+            // Auto-save on change
+            document.querySelectorAll('.setting-input').forEach(inp => {
+                inp.addEventListener('change', async function() {
+                    const key = this.dataset.key;
+                    const val = this.value.trim();
+                    try {
+                        await supabase.from('settings').upsert({ key, value: val }, { onConflict: 'key' });
+                    } catch(e) {}
+                    cachedSettings[key] = val;
+                    localStorage.setItem('tka_settings_cache', JSON.stringify(cachedSettings));
+                });
+            });
+        }
+
+        // Template DOCX
+        document.getElementById('uploadDocx').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('templateStatus').textContent = 'Memproses...';
+            try {
+                // Read file as arraybuffer
+                const buf = await file.arrayBuffer();
+                // Store in localStorage
+                const base64 = arrayBufferToBase64(buf);
+                localStorage.setItem('tka_template_docx', base64);
+
+                // Parse placeholders from DOCX XML
+                const placeholders = await extractDocxPlaceholders(buf);
+                renderTemplateVars(placeholders);
+                document.getElementById('templateStatus').textContent = file.name + ' (' + placeholders.length + ' variabel ditemukan)';
+                document.getElementById('saveTemplateBtn').disabled = false;
+            } catch(err) {
+                document.getElementById('templateStatus').textContent = 'Gagal: ' + err.message;
+            }
+            this.value = '';
+        });
+
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+            return btoa(binary);
+        }
+
+        async function extractDocxPlaceholders(buf) {
+            try {
+                const zip = await JSZip.loadAsync(buf);
+                const docFile = zip.file('word/document.xml');
+                if (!docFile) throw new Error('word/document.xml not found in DOCX');
+                const xmlStr = await docFile.async('string');
+                const matches = xmlStr.match(/<<([^>]+)>>/g) || [];
+                const unique = [...new Set(matches.map(m => m.replace(/<<|>>/g, '').trim()))];
+                return unique.filter(v => v.length > 0);
+            } catch(e) {
+                // Fallback: raw text search
+                const text = new TextDecoder('utf-8').decode(buf.slice(0, Math.min(buf.byteLength, 500000)));
+                const matches = text.match(/<<([^>]+)>>/g) || [];
+                const unique = [...new Set(matches.map(m => m.replace(/<<|>>/g, '').trim()))];
+                return unique.filter(v => v.length > 0);
+            }
+        }
+
+        function renderTemplateVars(placeholders) {
+            const tbody = document.getElementById('templateVarsBody');
+            if (placeholders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2" class="text-center py-6 text-gray-400 text-xs">Tidak ada variabel ditemukan di template</td></tr>';
+                return;
+            }
+            // Get saved mapping
+            let mapping = {};
+            try {
+                const raw = localStorage.getItem('tka_template_mapping');
+                if (raw) mapping = JSON.parse(raw);
+            } catch(e) {}
+
+            tbody.innerHTML = placeholders.map(p => {
+                const val = mapping[p] || p;
+                return `<tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-xs font-mono text-gray-700">&lt;&lt;${esc(p)}&gt;&gt;</td>
+                    <td class="px-4 py-3">
+                        <input type="text" class="tmpl-var-input w-full rounded-lg border border-gray-300 px-3 py-1.5 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500" data-var="${esc(p)}" value="${esc(val)}">
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        document.getElementById('saveTemplateBtn').addEventListener('click', function() {
+            const mapping = {};
+            document.querySelectorAll('.tmpl-var-input').forEach(inp => {
+                mapping[inp.dataset.var] = inp.value.trim();
+            });
+            localStorage.setItem('tka_template_mapping', JSON.stringify(mapping));
+            alert('Mapping template tersimpan.');
+        });
+
+        // ===================================================================
         // TAB NAVIGATION
         // ===================================================================
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -832,6 +1021,7 @@
                 document.getElementById('tab-' + this.dataset.tab).classList.remove('hidden');
                 if (this.dataset.tab === 'siswa') renderSiswaTable();
                 if (this.dataset.tab === 'tahun') renderTahunTable();
+                if (this.dataset.tab === 'pengaturan') renderPengaturan();
             });
         });
         document.querySelector('.tab-btn').click();

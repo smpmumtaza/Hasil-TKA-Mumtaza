@@ -42,3 +42,25 @@ CREATE POLICY "Allow all on tahun_ajaran" ON tahun_ajaran FOR ALL USING (true) W
 INSERT INTO tahun_ajaran (nama, is_default) VALUES ('2024/2025', false) ON CONFLICT (nama) DO NOTHING;
 INSERT INTO tahun_ajaran (nama, is_default) VALUES ('2025/2026', true) ON CONFLICT (nama) DO NOTHING;
 INSERT INTO tahun_ajaran (nama, is_default) VALUES ('2026/2027', false) ON CONFLICT (nama) DO NOTHING;
+
+-- Table settings for system-wide configurable labels
+CREATE TABLE IF NOT EXISTS settings (
+  id BIGSERIAL PRIMARY KEY,
+  key TEXT NOT NULL UNIQUE,
+  value TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow all on settings" ON settings;
+CREATE POLICY "Allow all on settings" ON settings FOR ALL USING (true) WITH CHECK (true);
+
+-- Default settings
+INSERT INTO settings (key, value) VALUES ('app_acronym', 'TKA') ON CONFLICT (key) DO NOTHING;
+INSERT INTO settings (key, value) VALUES ('app_subtitle', 'Hasil Tes Kemampuan Akademik') ON CONFLICT (key) DO NOTHING;
+INSERT INTO settings (key, value) VALUES ('app_title', 'Sistem Hasil TKA SMP Mumtaza') ON CONFLICT (key) DO NOTHING;
+INSERT INTO settings (key, value) VALUES ('nisn_label', 'NISN') ON CONFLICT (key) DO NOTHING;
+INSERT INTO settings (key, value) VALUES ('ttl_label', 'Tanggal Lahir') ON CONFLICT (key) DO NOTHING;
+INSERT INTO settings (key, value) VALUES ('no_peserta_label', 'Nomor Peserta') ON CONFLICT (key) DO NOTHING;
+INSERT INTO settings (key, value) VALUES ('template_variables', '{}') ON CONFLICT (key) DO NOTHING;
