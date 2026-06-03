@@ -333,6 +333,21 @@
                 page.drawText(text, { x, y, size: sz, font: f, color: rgb(0,0,0) });
             };
 
+            const drawJustifiedLine = (words, x, y, lineWidth, size) => {
+                const n = words.length;
+                if (n <= 1) {
+                    page.drawText(words[0], { x, y, size, font, color: rgb(0,0,0) });
+                    return;
+                }
+                const totalWordWidth = words.reduce((s, w) => s + font.widthOfTextAtSize(w, size), 0);
+                const gap = (lineWidth - totalWordWidth) / (n - 1);
+                let cx = x;
+                for (const w of words) {
+                    page.drawText(w, { x: cx, y, size, font, color: rgb(0,0,0) });
+                    cx += font.widthOfTextAtSize(w, size) + gap;
+                }
+            };
+
             // Title
             let t = 'SURAT KETERANGAN HASIL TES KEMAMPUAN AKADEMIK';
             txt(t, cx - font.widthOfTextAtSize(t, 13)/2, 730, { size: 13, bold: true });
@@ -400,26 +415,35 @@
             drawTable(page, font, bold, rows, px + 4, y, colW, 22);
             const afterTbl = y - 22 * 3;
 
-            // Note after table
+            // Note after table (justified)
             let ny = afterTbl - 14;
             const noteText = 'Nilai tersebut berdasarkan Daftar Kolektif Hasil Tes Kemampuan Akademik (DKHTKA) Dinas Pendidikan dan Kebudayaan Kota Tangerang Selatan Tahun 2026. Surat keterangan ini bersifat sementara sebagai bukti perolehan hasil TKA dan dapat digunakan untuk keperluan administrasi yang diperlukan sebelum dokumen Sertifikat Hasil Tes Kemampuan Akademik (SHTKA) diterbitkan.';
             const noteLines = wrapLines(font, noteText, col_w - 10, 11);
-            for (const line of noteLines) {
-                txt(line, px + 5, ny, { size: 11 });
+            for (let i = 0; i < noteLines.length; i++) {
+                const line = noteLines[i];
+                if (i === noteLines.length - 1) {
+                    txt(line, px + 5, ny, { size: 11 });
+                } else {
+                    drawJustifiedLine(line.split(' '), px + 5, ny, col_w - 10, 11);
+                }
                 ny -= 16;
             }
 
-            // Signature area
+            // Signature area (right-aligned)
+            const sigRight = px + col_w;
             const sigTop = ny - 20;
-            txt('Tangerang Selatan, 26 Mei 2026', px + 5, sigTop, { size: 11 });
-            txt('Kepala Sekolah,', px + 5, sigTop - 18, { size: 11 });
+            const dateText = 'Tangerang Selatan, 26 Mei 2026';
+            txt(dateText, sigRight - font.widthOfTextAtSize(dateText, 11), sigTop, { size: 11 });
+            const kepalaText = 'Kepala Sekolah,';
+            txt(kepalaText, sigRight - font.widthOfTextAtSize(kepalaText, 11), sigTop - 18, { size: 11 });
 
             const sigW = 110;
             const sigH = sigW * sigImg.height / sigImg.width;
-            page.drawImage(sigImg, { x: px + 5, y: sigTop - 18 - 8 - sigH, width: sigW, height: sigH });
+            page.drawImage(sigImg, { x: sigRight - sigW, y: sigTop - 18 - 8 - sigH, width: sigW, height: sigH });
             const afterSig = sigTop - 18 - 8 - sigH - 8;
 
-            txt('Khalimi, M.Pd', px + 5, afterSig, { size: 11, bold: true });
+            const namaText = 'Khalimi, M.Pd';
+            txt(namaText, sigRight - bold.widthOfTextAtSize(namaText, 11), afterSig, { size: 11, bold: true });
 
             // Save
             const pdfBytes = await pdfDoc.save();
