@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -20,7 +21,8 @@
     </script>
 </head>
 <body class="min-h-screen bg-gray-100">
-    <!-- Login screen -->
+
+    <!-- ==================== LOGIN ==================== -->
     <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
         <div class="w-full max-w-sm bg-white rounded-2xl shadow-lg p-8">
             <div class="text-center mb-6">
@@ -28,27 +30,24 @@
                     <i class="fas fa-lock text-primary-600 text-xl"></i>
                 </div>
                 <h1 class="text-xl font-bold text-gray-800">Admin Panel</h1>
-                <p class="text-sm text-gray-500 mt-1">Masuk untuk melihat statistik</p>
+                <p class="text-sm text-gray-500 mt-1">Masuk untuk mengelola data</p>
             </div>
             <form id="loginForm" class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username</label>
-                    <input type="text" id="user" required
-                        class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                    <input type="text" id="user" required class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Password</label>
-                    <input type="password" id="pass" required
-                        class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                    <input type="password" id="pass" required class="mt-1 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
                 </div>
                 <div id="loginErr" class="hidden text-sm text-red-600 bg-red-50 rounded-lg p-3"><i class="fas fa-exclamation-circle mr-1"></i> Username atau password salah.</div>
-                <button type="submit"
-                    class="w-full rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 transition">Masuk</button>
+                <button type="submit" class="w-full rounded-lg bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-700 transition">Masuk</button>
             </form>
         </div>
     </div>
 
-    <!-- Dashboard -->
+    <!-- ==================== DASHBOARD ==================== -->
     <div id="dashboard" class="hidden">
         <nav class="bg-primary-700 shadow-lg">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -57,7 +56,7 @@
                         <img src="../images/logo.png" alt="Mumtaza" class="h-10 w-10 rounded-full object-cover">
                         <div>
                             <h1 class="text-lg font-bold text-white">Admin Panel</h1>
-                            <p class="text-xs text-primary-100 -mt-1">Statistik Download Hasil TKA</p>
+                            <p class="text-xs text-primary-100 -mt-1">Sistem Hasil TKA SMP Mumtaza</p>
                         </div>
                     </div>
                     <button id="logoutBtn" class="text-sm text-white/80 hover:text-white"><i class="fas fa-sign-out-alt mr-1"></i> Keluar</button>
@@ -65,75 +64,741 @@
             </div>
         </nav>
 
+        <!-- Tab Navigation -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div class="flex gap-1 -mb-px">
+                    <button class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 transition" data-tab="stats"><i class="fas fa-chart-pie mr-1"></i> Dashboard</button>
+                    <button class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 transition" data-tab="siswa"><i class="fas fa-users mr-1"></i> Data Siswa</button>
+                    <button class="tab-btn px-4 py-3 text-sm font-semibold border-b-2 transition" data-tab="tahun"><i class="fas fa-calendar mr-1"></i> Tahun Ajaran</button>
+                </div>
+            </div>
+        </div>
+
         <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-            <!-- Summary cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                <div class="bg-white rounded-xl shadow p-5">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100"><i class="fas fa-download text-blue-600"></i></div>
-                        <div><p class="text-2xl font-bold text-gray-800" id="totalDownloads">0</p><p class="text-xs text-gray-500">Total Download</p></div>
+
+            <!-- ==================== TAB: STATS ==================== -->
+            <div class="tab-content" id="tab-stats">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100"><i class="fas fa-download text-blue-600"></i></div>
+                            <div><p class="text-2xl font-bold text-gray-800" id="totalDownloads">0</p><p class="text-xs text-gray-500">Total Download</p></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100"><i class="fas fa-users text-green-600"></i></div>
+                            <div><p class="text-2xl font-bold text-gray-800" id="uniqueStudents">0</p><p class="text-xs text-gray-500">Siswa Unik</p></div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100"><i class="fas fa-calendar text-amber-600"></i></div>
+                            <div><p class="text-2xl font-bold text-gray-800" id="todayCount">0</p><p class="text-xs text-gray-500">Hari Ini</p></div>
+                        </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow p-5">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-green-100"><i class="fas fa-users text-green-600"></i></div>
-                        <div><p class="text-2xl font-bold text-gray-800" id="uniqueStudents">0</p><p class="text-xs text-gray-500">Siswa Unik</p></div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <h3 class="text-sm font-semibold text-gray-600 mb-3"><i class="fas fa-chart-bar mr-1"></i> Histogram Download per NISN</h3>
+                        <div style="position:relative;height:280px;"><canvas id="histChart"></canvas></div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow p-5">
+                        <h3 class="text-sm font-semibold text-gray-600 mb-3"><i class="fas fa-chart-pie mr-1"></i> Pie Chart Perbandingan</h3>
+                        <div style="position:relative;height:280px;"><canvas id="pieChart"></canvas></div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow p-5">
-                    <div class="flex items-center gap-3">
-                        <div class="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100"><i class="fas fa-calendar text-amber-600"></i></div>
-                        <div><p class="text-2xl font-bold text-gray-800" id="todayCount">0</p><p class="text-xs text-gray-500">Hari Ini</p></div>
+                <div class="bg-white rounded-xl shadow p-5 mb-6">
+                    <h3 class="text-sm font-semibold text-gray-600 mb-3"><i class="fas fa-chart-line mr-1"></i> Time Series Download</h3>
+                    <div style="position:relative;height:260px;"><canvas id="timeChart"></canvas></div>
+                </div>
+                <div class="bg-white rounded-xl shadow overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-gray-600"><i class="fas fa-table mr-1"></i> Riwayat Download</h3>
+                        <button id="clearBtn" class="text-xs text-red-500 hover:text-red-700"><i class="fas fa-trash mr-1"></i> Hapus Semua Data</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm" id="logTable">
+                            <thead class="bg-gray-50"><tr>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">#</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">NISN</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">Nama</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">Waktu</th>
+                                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">Tanggal</th>
+                            </tr></thead>
+                            <tbody id="logBody" class="divide-y divide-gray-100"></tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Charts -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <div class="bg-white rounded-xl shadow p-5">
-                    <h3 class="text-sm font-semibold text-gray-600 mb-3"><i class="fas fa-chart-bar mr-1"></i> Histogram Download per NISN</h3>
-                    <div style="position:relative;height:280px;"><canvas id="histChart"></canvas></div>
-                </div>
-                <div class="bg-white rounded-xl shadow p-5">
-                    <h3 class="text-sm font-semibold text-gray-600 mb-3"><i class="fas fa-chart-pie mr-1"></i> Pie Chart Perbandingan</h3>
-                    <div style="position:relative;height:280px;"><canvas id="pieChart"></canvas></div>
+            <!-- ==================== TAB: DATA SISWA ==================== -->
+            <div class="tab-content hidden" id="tab-siswa">
+                <div class="bg-white rounded-xl shadow">
+                    <!-- Toolbar -->
+                    <div class="p-4 sm:p-5 border-b border-gray-200 flex flex-wrap items-center gap-3">
+                        <h3 class="text-sm font-semibold text-gray-600 mr-auto"><i class="fas fa-database mr-1"></i> Data Siswa</h3>
+                        <label class="inline-flex items-center gap-1.5 text-xs font-medium text-primary-700 bg-primary-50 hover:bg-primary-100 rounded-lg px-3 py-2 cursor-pointer transition">
+                            <i class="fas fa-upload"></i> Upload XLSX
+                            <input type="file" id="uploadXlsx" accept=".xlsx,.xls" class="hidden">
+                        </label>
+                        <button id="exportXlsxBtn" class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700 bg-green-50 hover:bg-green-100 rounded-lg px-3 py-2 transition">
+                            <i class="fas fa-download"></i> Download XLSX
+                        </button>
+                        <button id="addSiswaBtn" class="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg px-3 py-2 transition">
+                            <i class="fas fa-plus"></i> Tambah Siswa
+                        </button>
+                    </div>
+                    <!-- Search & Filter -->
+                    <div class="p-4 sm:p-5 border-b border-gray-200 flex flex-wrap items-center gap-3">
+                        <div class="relative flex-1 min-w-[200px]">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                            <input type="text" id="searchSiswa" placeholder="Cari nama, NISN, nomor peserta..." class="w-full rounded-lg border border-gray-300 pl-8 pr-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                        </div>
+                        <select id="filterTahun" class="rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                            <option value="">Semua Tahun Ajaran</option>
+                        </select>
+                        <span class="text-xs text-gray-400" id="dataCount">0 data</span>
+                    </div>
+                    <!-- Table -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm" id="siswaTable">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase text-gray-500">No</th>
+                                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase text-gray-500">Nama</th>
+                                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase text-gray-500">NISN</th>
+                                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase text-gray-500">Tgl Lahir</th>
+                                    <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase text-gray-500">No Peserta</th>
+                                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase text-gray-500">Mat</th>
+                                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase text-gray-500">Predikat Mat</th>
+                                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase text-gray-500">B. Indo</th>
+                                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase text-gray-500">Predikat B. Indo</th>
+                                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase text-gray-500">Tahun Ajaran</th>
+                                    <th class="px-3 py-2.5 text-center text-xs font-semibold uppercase text-gray-500">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="siswaBody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <div class="p-4 border-t border-gray-200 flex items-center justify-between flex-wrap gap-2">
+                        <div class="flex items-center gap-2 text-xs text-gray-500">
+                            <span>Baris per halaman:</span>
+                            <select id="perPage" class="border border-gray-300 rounded px-2 py-1 text-xs">
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-1 text-xs" id="pagination"></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow p-5 mb-6">
-                <h3 class="text-sm font-semibold text-gray-600 mb-3"><i class="fas fa-chart-line mr-1"></i> Time Series Download</h3>
-                <div style="position:relative;height:260px;"><canvas id="timeChart"></canvas></div>
+            <!-- ==================== TAB: TAHUN AJARAN ==================== -->
+            <div class="tab-content hidden" id="tab-tahun">
+                <div class="bg-white rounded-xl shadow">
+                    <div class="p-4 sm:p-5 border-b border-gray-200 flex items-center gap-3">
+                        <h3 class="text-sm font-semibold text-gray-600 mr-auto"><i class="fas fa-calendar-alt mr-1"></i> Pengaturan Tahun Ajaran</h3>
+                        <button id="addTahunBtn" class="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg px-3 py-2 transition">
+                            <i class="fas fa-plus"></i> Tambah Tahun Ajaran
+                        </button>
+                    </div>
+                    <div class="p-4 sm:p-5 border-b border-gray-200 flex items-center gap-3">
+                        <label class="text-xs font-medium text-gray-600">Tahun Ajaran Default:</label>
+                        <select id="defaultTahun" class="rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500 min-w-[160px]"></select>
+                        <span class="text-xs text-gray-400">(digunakan saat upload XLSX baru jika kolom Tahun Ajaran kosong)</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">Tahun Ajaran</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-500">Jumlah Siswa</th>
+                                    <th class="px-4 py-3 text-center text-xs font-semibold uppercase text-gray-500">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tahunBody" class="divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            <!-- Table -->
-            <div class="bg-white rounded-xl shadow overflow-hidden">
-                <div class="px-5 py-4 border-b border-gray-200 flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-gray-600"><i class="fas fa-table mr-1"></i> Riwayat Download</h3>
-                    <button id="clearBtn" class="text-xs text-red-500 hover:text-red-700"><i class="fas fa-trash mr-1"></i> Hapus Semua Data</button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="min-w-full text-sm" id="logTable">
-                        <thead class="bg-gray-50"><tr>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">#</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">NISN</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">Nama</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">Waktu</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">Tanggal</th>
-                        </tr></thead>
-                        <tbody id="logBody" class="divide-y divide-gray-100"></tbody>
-                    </table>
-                </div>
-            </div>
         </main>
     </div>
 
+    <!-- ==================== MODAL SISWA ==================== -->
+    <div id="siswaModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between p-5 border-b">
+                <h3 class="text-sm font-bold text-gray-800" id="modalSiswaTitle"><i class="fas fa-user-graduate mr-1"></i> Tambah / Edit Siswa</h3>
+                <button onclick="closeSiswaModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="siswaForm" class="p-5 space-y-4">
+                <input type="hidden" id="editIndex" value="-1">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Nama</label>
+                        <input type="text" id="fNama" required class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">NISN</label>
+                        <input type="text" id="fNISN" required class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Tanggal Lahir (ddmmyyyy)</label>
+                        <input type="text" id="fDdmmyyyy" required maxlength="8" pattern="\d{8}" inputmode="numeric" placeholder="27072011" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Nomor Peserta</label>
+                        <input type="text" id="fNomorPeserta" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Matematika Score</label>
+                        <input type="number" id="fMatScore" step="0.01" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Predikat Matematika</label>
+                        <select id="fMatRating" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                            <option value="">-</option>
+                            <option>Baik</option>
+                            <option>Memadai</option>
+                            <option>Kurang</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">B. Indonesia Score</label>
+                        <input type="number" id="fBindoScore" step="0.01" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Predikat B. Indonesia</label>
+                        <select id="fBindoRating" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                            <option value="">-</option>
+                            <option>Baik</option>
+                            <option>Memadai</option>
+                            <option>Kurang</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Tahun Ajaran</label>
+                    <select id="fTahunAjaran" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500"></select>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 rounded-lg bg-primary-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-primary-700 transition">Simpan</button>
+                    <button type="button" onclick="closeSiswaModal()" class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL TAHUN AJARAN ==================== -->
+    <div id="tahunModal" class="hidden fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm">
+            <div class="flex items-center justify-between p-5 border-b">
+                <h3 class="text-sm font-bold text-gray-800" id="modalTahunTitle"><i class="fas fa-calendar mr-1"></i> Tambah / Edit Tahun Ajaran</h3>
+                <button onclick="closeTahunModal()" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="tahunForm" class="p-5 space-y-4">
+                <input type="hidden" id="editTahunIndex" value="-1">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Tahun Ajaran</label>
+                    <input type="text" id="fTahun" required placeholder="2025/2026" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-xs focus:border-primary-500 focus:ring-1 focus:ring-primary-500">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="flex-1 rounded-lg bg-primary-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-primary-700 transition">Simpan</button>
+                    <button type="button" onclick="closeTahunModal()" class="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-xs font-semibold text-gray-600 hover:bg-gray-50 transition">Batal</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        // ===================================================================
+        // CONSTANTS
+        // ===================================================================
         const ADMIN_USER = 'admin';
         const ADMIN_PASS = 'admin123';
 
         const SUPABASE_URL = 'https://skiraowhzwtdcidnhply.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const STORAGE_KEY = 'tka_admin_data';
+        const TAHUN_KEY = 'tka_admin_tahun';
+        const DEFAULT_TAHUN_KEY = 'tka_admin_default_tahun';
+
+        const XLSX_URLS = [
+            '../Data%20TKA%20SMP%20Mumtaza.xlsx',
+            'https://raw.githubusercontent.com/smpmumtaza/Hasil-TKA-Mumtaza/main/Data%20TKA%20SMP%20Mumtaza.xlsx'
+        ];
+
+        // ===================================================================
+        // STATE
+        // ===================================================================
+        let DATA = [];             // Array of student objects
+        let filteredData = [];
+        let currentPage = 1;
+
+        // ===================================================================
+        // DATA PERSISTENCE
+        // ===================================================================
+        function loadData() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) DATA = JSON.parse(raw);
+            } catch(e) { DATA = []; }
+            if (!DATA || !Array.isArray(DATA)) DATA = [];
+        }
+
+        function saveData() {
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(DATA)); } catch(e) {}
+        }
+
+        function loadTahunAjaran() {
+            try {
+                const raw = localStorage.getItem(TAHUN_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch(e) {}
+            return ['2024/2025', '2025/2026', '2026/2027'];
+        }
+
+        function saveTahunAjaran(list) {
+            try { localStorage.setItem(TAHUN_KEY, JSON.stringify(list)); } catch(e) {}
+        }
+
+        function getDefaultTahun() {
+            return localStorage.getItem(DEFAULT_TAHUN_KEY) || '2025/2026';
+        }
+
+        function setDefaultTahun(v) {
+            localStorage.setItem(DEFAULT_TAHUN_KEY, v);
+        }
+
+        // ===================================================================
+        // XLSX LOAD / PARSE
+        // ===================================================================
+        async function loadXlsxFromUrl(url) {
+            const resp = await fetch(url);
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            const buf = await resp.arrayBuffer();
+            const wb = XLSX.read(buf, { type: 'array' });
+            const ws = wb.Sheets[wb.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+            return rows.map(normalizeRow);
+        }
+
+        function normalizeRow(r) {
+            let d = r['ddmmyyyy'];
+            if (typeof d === 'number') d = String(d);
+            else if (d && typeof d === 'object' && d instanceof Date) {
+                const dd = String(d.getDate()).padStart(2,'0');
+                const mm = String(d.getMonth()+1).padStart(2,'0');
+                d = dd + mm + d.getFullYear();
+            } else d = String(d || '').trim();
+            return {
+                Nomor_Peserta: String(r['Nomor_Peserta'] || '').trim(),
+                NISN: String(r['NISN'] || '').trim(),
+                ddmmyyyy: d,
+                Nama: String(r['Nama'] || '').trim(),
+                Matematika_Score: r['Matematika_Score'] ?? '',
+                Matematika_Rating: String(r['Matematika_Rating'] || '').trim(),
+                Bahasa_Indonesia_Score: r['Bahasa_Indonesia_Score'] ?? '',
+                Bahasa_Indonesia_Rating: String(r['Bahasa_Indonesia_Rating'] || '').trim(),
+                Tahun_Ajaran: String(r['Tahun_Ajaran'] || getDefaultTahun()).trim(),
+            };
+        }
+
+        async function loadInitialData() {
+            loadData();
+            if (DATA.length === 0) {
+                for (const url of XLSX_URLS) {
+                    try {
+                        DATA = await loadXlsxFromUrl(url);
+                        // assign default tahun if empty
+                        const def = getDefaultTahun();
+                        for (const d of DATA) {
+                            if (!d.Tahun_Ajaran) d.Tahun_Ajaran = def;
+                        }
+                        saveData();
+                        return;
+                    } catch(e) { console.warn('Failed:', url, e); }
+                }
+            }
+        }
+
+        // ===================================================================
+        // EXPORT XLSX
+        // ===================================================================
+        function exportXlsx() {
+            const cols = ['Nomor_Peserta','NISN','ddmmyyyy','Nama','Matematika_Score','Matematika_Rating','Bahasa_Indonesia_Score','Bahasa_Indonesia_Rating','Tahun_Ajaran'];
+            const arr = DATA.map(r => {
+                const o = {};
+                for (const c of cols) o[c] = r[c] ?? '';
+                return o;
+            });
+            const ws = XLSX.utils.json_to_sheet(arr);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Data');
+            const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const blob = new Blob([buf], { type: 'application/octet-stream' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'Data_TKA_SMP_Mumtaza.xlsx';
+            a.click();
+        }
+
+        // ===================================================================
+        // RENDER TABEL SISWA
+        // ===================================================================
+        function renderSiswaTable() {
+            const search = (document.getElementById('searchSiswa').value || '').toLowerCase();
+            const filterTahun = document.getElementById('filterTahun').value;
+
+            filteredData = DATA.filter(r => {
+                if (filterTahun && r.Tahun_Ajaran !== filterTahun) return false;
+                if (search) {
+                    const s = search;
+                    const match = (r.Nama || '').toLowerCase().includes(s)
+                        || (r.NISN || '').toLowerCase().includes(s)
+                        || (r.Nomor_Peserta || '').toLowerCase().includes(s);
+                    if (!match) return false;
+                }
+                return true;
+            });
+
+            const perPage = parseInt(document.getElementById('perPage').value) || 20;
+            const totalPages = Math.max(1, Math.ceil(filteredData.length / perPage));
+            if (currentPage > totalPages) currentPage = totalPages;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * perPage;
+            const pageData = filteredData.slice(start, start + perPage);
+
+            document.getElementById('dataCount').textContent = filteredData.length + ' data';
+
+            const tbody = document.getElementById('siswaBody');
+            if (pageData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-8 text-gray-400 text-xs"><i class="fas fa-inbox mr-1"></i> Tidak ada data</td></tr>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            const tahunList = loadTahunAjaran();
+            tbody.innerHTML = pageData.map((r, i) => {
+                const idx = start + i;
+                const bisaEdit = idx < DATA.length;
+                return `<tr class="hover:bg-gray-50">
+                    <td class="px-3 py-2 text-gray-400 text-xs">${idx + 1}</td>
+                    <td class="px-3 py-2 text-gray-800 font-medium text-xs">${esc(r.Nama || '')}</td>
+                    <td class="px-3 py-2 text-gray-700 font-mono text-xs">${esc(r.NISN || '')}</td>
+                    <td class="px-3 py-2 text-gray-600 text-xs">${esc(r.ddmmyyyy || '')}</td>
+                    <td class="px-3 py-2 text-gray-600 text-xs font-mono">${esc(r.Nomor_Peserta || '')}</td>
+                    <td class="px-3 py-2 text-center text-xs text-gray-800">${r.Matematika_Score ?? ''}</td>
+                    <td class="px-3 py-2 text-center text-xs">${ratingBadge(r.Matematika_Rating)}</td>
+                    <td class="px-3 py-2 text-center text-xs text-gray-800">${r.Bahasa_Indonesia_Score ?? ''}</td>
+                    <td class="px-3 py-2 text-center text-xs">${ratingBadge(r.Bahasa_Indonesia_Rating)}</td>
+                    <td class="px-3 py-2 text-center text-xs"><span class="bg-gray-100 text-gray-700 px-2 py-0.5 rounded text-xs">${esc(r.Tahun_Ajaran || '')}</span></td>
+                    <td class="px-3 py-2 text-center">
+                        <button onclick="editSiswa(${idx})" class="text-blue-600 hover:text-blue-800 text-xs mr-1" title="Edit"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteSiswa(${idx})" class="text-red-500 hover:text-red-700 text-xs" title="Hapus"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            // Pagination
+            let pagHtml = '';
+            if (totalPages > 1) {
+                pagHtml += `<button onclick="goPage(${currentPage - 1})" class="px-2 py-1 rounded ${currentPage > 1 ? 'hover:bg-gray-200 text-gray-700' : 'text-gray-300 cursor-default'}"><i class="fas fa-chevron-left"></i></button>`;
+                for (let p = 1; p <= totalPages; p++) {
+                    if (p === currentPage) {
+                        pagHtml += `<span class="px-2 py-1 rounded bg-primary-100 text-primary-700 font-semibold">${p}</span>`;
+                    } else if (p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2) {
+                        pagHtml += `<button onclick="goPage(${p})" class="px-2 py-1 rounded hover:bg-gray-200 text-gray-600">${p}</button>`;
+                    } else if (Math.abs(p - currentPage) === 3) {
+                        pagHtml += `<span class="px-1 text-gray-400">..</span>`;
+                    }
+                }
+                pagHtml += `<button onclick="goPage(${currentPage + 1})" class="px-2 py-1 rounded ${currentPage < totalPages ? 'hover:bg-gray-200 text-gray-700' : 'text-gray-300 cursor-default'}"><i class="fas fa-chevron-right"></i></button>`;
+            }
+            document.getElementById('pagination').innerHTML = pagHtml;
+        }
+
+        function goPage(p) {
+            const total = Math.ceil(filteredData.length / (parseInt(document.getElementById('perPage').value) || 20));
+            if (p < 1 || p > total) return;
+            currentPage = p;
+            renderSiswaTable();
+        }
+
+        function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        function ratingBadge(r) {
+            if (!r) return '<span class="text-gray-400">-</span>';
+            const color = r === 'Baik' ? 'text-green-600' : r === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
+            return `<span class="${color} font-semibold">${esc(r)}</span>`;
+        }
+
+        function refreshFilterTahun() {
+            const tahunList = loadTahunAjaran();
+            const sel = document.getElementById('filterTahun');
+            const cur = sel.value;
+            sel.innerHTML = '<option value="">Semua Tahun Ajaran</option>' + tahunList.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+            sel.value = cur;
+            // Also refresh modal dropdown
+            const fTahun = document.getElementById('fTahunAjaran');
+            if (fTahun) {
+                const cur2 = fTahun.value;
+                fTahun.innerHTML = tahunList.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+                if (cur2) fTahun.value = cur2;
+            }
+            renderSiswaTable();
+        }
+
+        // ===================================================================
+        // CRUD SISWA
+        // ===================================================================
+        function openSiswaModal(idx) {
+            document.getElementById('editIndex').value = idx;
+            document.getElementById('siswaModal').classList.remove('hidden');
+            refreshFilterTahun();
+
+            if (idx >= 0 && idx < DATA.length) {
+                const r = DATA[idx];
+                document.getElementById('modalSiswaTitle').innerHTML = '<i class="fas fa-edit mr-1"></i> Edit Siswa';
+                document.getElementById('fNama').value = r.Nama || '';
+                document.getElementById('fNISN').value = r.NISN || '';
+                document.getElementById('fDdmmyyyy').value = r.ddmmyyyy || '';
+                document.getElementById('fNomorPeserta').value = r.Nomor_Peserta || '';
+                document.getElementById('fMatScore').value = r.Matematika_Score ?? '';
+                document.getElementById('fMatRating').value = r.Matematika_Rating || '';
+                document.getElementById('fBindoScore').value = r.Bahasa_Indonesia_Score ?? '';
+                document.getElementById('fBindoRating').value = r.Bahasa_Indonesia_Rating || '';
+                document.getElementById('fTahunAjaran').value = r.Tahun_Ajaran || getDefaultTahun();
+            } else {
+                document.getElementById('modalSiswaTitle').innerHTML = '<i class="fas fa-plus mr-1"></i> Tambah Siswa';
+                document.getElementById('fNama').value = '';
+                document.getElementById('fNISN').value = '';
+                document.getElementById('fDdmmyyyy').value = '';
+                document.getElementById('fNomorPeserta').value = '';
+                document.getElementById('fMatScore').value = '';
+                document.getElementById('fMatRating').value = '';
+                document.getElementById('fBindoScore').value = '';
+                document.getElementById('fBindoRating').value = '';
+                document.getElementById('fTahunAjaran').value = getDefaultTahun();
+            }
+        }
+
+        function closeSiswaModal() {
+            document.getElementById('siswaModal').classList.add('hidden');
+        }
+
+        function editSiswa(idx) { openSiswaModal(idx); }
+
+        function deleteSiswa(idx) {
+            if (idx < 0 || idx >= DATA.length) return;
+            const r = DATA[idx];
+            if (!confirm(`Hapus data siswa ${r.Nama || r.NISN}?`)) return;
+            DATA.splice(idx, 1);
+            saveData();
+            renderSiswaTable();
+        }
+
+        document.getElementById('siswaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const idx = parseInt(document.getElementById('editIndex').value);
+            const obj = {
+                Nama: document.getElementById('fNama').value.trim(),
+                NISN: document.getElementById('fNISN').value.trim(),
+                ddmmyyyy: document.getElementById('fDdmmyyyy').value.trim(),
+                Nomor_Peserta: document.getElementById('fNomorPeserta').value.trim(),
+                Matematika_Score: document.getElementById('fMatScore').value,
+                Matematika_Rating: document.getElementById('fMatRating').value,
+                Bahasa_Indonesia_Score: document.getElementById('fBindoScore').value,
+                Bahasa_Indonesia_Rating: document.getElementById('fBindoRating').value,
+                Tahun_Ajaran: document.getElementById('fTahunAjaran').value,
+            };
+            if (idx >= 0 && idx < DATA.length) {
+                DATA[idx] = obj;
+            } else {
+                DATA.push(obj);
+            }
+            saveData();
+            closeSiswaModal();
+            renderSiswaTable();
+        });
+
+        // ===================================================================
+        // UPLOAD XLSX
+        // ===================================================================
+        document.getElementById('uploadXlsx').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            try {
+                const buf = await file.arrayBuffer();
+                const wb = XLSX.read(buf, { type: 'array' });
+                const ws = wb.Sheets[wb.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+                const def = getDefaultTahun();
+                DATA = rows.map(r => {
+                    const n = normalizeRow(r);
+                    if (!n.Tahun_Ajaran) n.Tahun_Ajaran = def;
+                    return n;
+                });
+                saveData();
+                renderSiswaTable();
+                renderTahunTable();
+                alert('Data berhasil diupload: ' + DATA.length + ' siswa.');
+            } catch(err) {
+                alert('Gagal membaca file: ' + err.message);
+            }
+            this.value = '';
+        });
+
+        document.getElementById('exportXlsxBtn').addEventListener('click', exportXlsx);
+        document.getElementById('addSiswaBtn').addEventListener('click', () => openSiswaModal(-1));
+
+        // Search & filter
+        document.getElementById('searchSiswa').addEventListener('input', () => { currentPage = 1; renderSiswaTable(); });
+        document.getElementById('filterTahun').addEventListener('change', () => { currentPage = 1; renderSiswaTable(); });
+        document.getElementById('perPage').addEventListener('change', () => { currentPage = 1; renderSiswaTable(); });
+
+        // ===================================================================
+        // TAHUN AJARAN CRUD
+        // ===================================================================
+        function renderTahunTable() {
+            const tahunList = loadTahunAjaran();
+            const def = getDefaultTahun();
+            const counts = {};
+            for (const r of DATA) {
+                const t = r.Tahun_Ajaran || '(tanpa)';
+                counts[t] = (counts[t] || 0) + 1;
+            }
+            const tbody = document.getElementById('tahunBody');
+            if (tahunList.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-gray-400 text-xs"><i class="fas fa-calendar-times mr-1"></i> Belum ada tahun ajaran</td></tr>';
+            } else {
+                tbody.innerHTML = tahunList.map((t, i) => `<tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-800">${esc(t)} ${t === def ? '<span class="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded ml-1">Default</span>' : ''}</td>
+                    <td class="px-4 py-3 text-center text-sm text-gray-600">${counts[t] || 0} siswa</td>
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="editTahun(${i})" class="text-blue-600 hover:text-blue-800 text-xs mr-2"><i class="fas fa-edit"></i> Edit</button>
+                        <button onclick="deleteTahun(${i})" class="text-red-500 hover:text-red-700 text-xs"><i class="fas fa-trash"></i> Hapus</button>
+                    </td>
+                </tr>`).join('');
+            }
+
+            // Default dropdown
+            const defSel = document.getElementById('defaultTahun');
+            const curDef = defSel.value;
+            defSel.innerHTML = tahunList.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+            if (curDef && tahunList.includes(curDef)) defSel.value = curDef;
+            else defSel.value = def;
+        }
+
+        document.getElementById('defaultTahun').addEventListener('change', function() {
+            setDefaultTahun(this.value);
+            renderTahunTable();
+        });
+
+        function openTahunModal(idx) {
+            document.getElementById('editTahunIndex').value = idx;
+            document.getElementById('tahunModal').classList.remove('hidden');
+            if (idx >= 0) {
+                const tahunList = loadTahunAjaran();
+                document.getElementById('modalTahunTitle').innerHTML = '<i class="fas fa-edit mr-1"></i> Edit Tahun Ajaran';
+                document.getElementById('fTahun').value = tahunList[idx] || '';
+            } else {
+                document.getElementById('modalTahunTitle').innerHTML = '<i class="fas fa-plus mr-1"></i> Tambah Tahun Ajaran';
+                document.getElementById('fTahun').value = '';
+            }
+        }
+
+        function closeTahunModal() {
+            document.getElementById('tahunModal').classList.add('hidden');
+        }
+
+        function editTahun(idx) { openTahunModal(idx); }
+
+        function deleteTahun(idx) {
+            const tahunList = loadTahunAjaran();
+            const t = tahunList[idx];
+            if (!t) return;
+            const count = DATA.filter(r => r.Tahun_Ajaran === t).length;
+            const msg = count > 0
+                ? `Hapus tahun ajaran "${t}"? ${count} siswa dengan tahun ini akan dikosongkan.`
+                : `Hapus tahun ajaran "${t}"?`;
+            if (!confirm(msg)) return;
+            tahunList.splice(idx, 1);
+            saveTahunAjaran(tahunList);
+            // Remove from data
+            for (const r of DATA) {
+                if (r.Tahun_Ajaran === t) r.Tahun_Ajaran = '';
+            }
+            saveData();
+            refreshFilterTahun();
+            renderTahunTable();
+        }
+
+        document.getElementById('tahunForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const idx = parseInt(document.getElementById('editTahunIndex').value);
+            const val = document.getElementById('fTahun').value.trim();
+            if (!val) return;
+            const tahunList = loadTahunAjaran();
+            if (idx >= 0 && idx < tahunList.length) {
+                const old = tahunList[idx];
+                tahunList[idx] = val;
+                // Update data
+                for (const r of DATA) {
+                    if (r.Tahun_Ajaran === old) r.Tahun_Ajaran = val;
+                }
+            } else {
+                if (tahunList.includes(val)) {
+                    alert('Tahun ajaran "' + val + '" sudah ada.');
+                    return;
+                }
+                tahunList.push(val);
+            }
+            saveTahunAjaran(tahunList);
+            saveData();
+            closeTahunModal();
+            refreshFilterTahun();
+            renderTahunTable();
+        });
+
+        document.getElementById('addTahunBtn').addEventListener('click', () => openTahunModal(-1));
+
+        // ===================================================================
+        // TAB NAVIGATION
+        // ===================================================================
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('border-primary-600', 'text-primary-700');
+                    b.classList.add('border-transparent', 'text-gray-500');
+                });
+                this.classList.remove('border-transparent', 'text-gray-500');
+                this.classList.add('border-primary-600', 'text-primary-700');
+                document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
+                document.getElementById('tab-' + this.dataset.tab).classList.remove('hidden');
+                if (this.dataset.tab === 'siswa') renderSiswaTable();
+                if (this.dataset.tab === 'tahun') renderTahunTable();
+            });
+        });
+        // Activate first tab by default
+        document.querySelector('.tab-btn').click();
+
+        // ===================================================================
+        // DASHBOARD (EXISTING)
+        // ===================================================================
+        let histChart, pieChart, timeChart;
 
         function wib(iso) {
             if (!iso) return null;
@@ -142,43 +807,14 @@
             return d.toISOString();
         }
 
-        // ----- Login -----
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const u = document.getElementById('user').value;
-            const p = document.getElementById('pass').value;
-            if (u === ADMIN_USER && p === ADMIN_PASS) {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                renderDashboard().then();
-            } else {
-                document.getElementById('loginErr').classList.remove('hidden');
-            }
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            document.getElementById('dashboard').classList.add('hidden');
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('user').value = '';
-            document.getElementById('pass').value = '';
-            document.getElementById('loginErr').classList.add('hidden');
-        });
-
-        // ----- Dashboard -----
-        let histChart, pieChart, timeChart;
-
         async function getLogs() {
-            // Try Supabase first
             try {
                 const { data, error } = await supabase
                     .from('downloads')
                     .select('*')
                     .order('created_at', { ascending: false });
-                if (!error && data) {
-                    return data.map(r => ({ nisn: r.nisn, nama: r.nama, tgl: r.created_at }));
-                }
+                if (!error && data) return data.map(r => ({ nisn: r.nisn, nama: r.nama, tgl: r.created_at }));
             } catch(e) {}
-            // Fallback to localStorage
             try { return JSON.parse(localStorage.getItem('tka_downloads') || '[]'); } catch(e) { return []; }
         }
 
@@ -192,7 +828,6 @@
             document.getElementById('uniqueStudents').textContent = unique;
             document.getElementById('todayCount').textContent = todayCount;
 
-            // Aggregate per NISN
             const map = {};
             for (const l of logs) {
                 const key = l.nisn || '(kosong)';
@@ -204,7 +839,6 @@
             const counts = entries.map(e => e.count);
             const colors = entries.map((_,i) => `hsl(${(i*360/entries.length+180)%360},65%,55%)`);
 
-            // Destroy old charts
             if (histChart) { histChart.destroy(); histChart = null; }
             if (pieChart) { pieChart.destroy(); pieChart = null; }
             if (timeChart) { timeChart.destroy(); timeChart = null; }
@@ -214,7 +848,6 @@
                 plugins: { legend: { labels: { boxWidth: 12, padding: 8, font: { size: 10 } } } }
             };
 
-            // Histogram
             const ctx1 = document.getElementById('histChart').getContext('2d');
             histChart = new Chart(ctx1, {
                 type: 'bar',
@@ -230,7 +863,6 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
             });
 
-            // Pie
             const ctx2 = document.getElementById('pieChart').getContext('2d');
             const pieLabels = entries.slice(0,8).map(e => e.nisn);
             const pieData = entries.slice(0,8).map(e => e.count);
@@ -244,7 +876,6 @@
                 options: { ...commonOpts, plugins: { ...commonOpts.plugins, legend: { ...commonOpts.plugins.legend, position: 'right' } } }
             });
 
-            // Time series
             const ctx3 = document.getElementById('timeChart').getContext('2d');
             const dayMap = {};
             for (const l of logs) {
@@ -269,7 +900,6 @@
                 options: { ...commonOpts, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
             });
 
-            // Table
             const tbody = document.getElementById('logBody');
             tbody.innerHTML = logs.slice().reverse().map((l, i) => `<tr class="hover:bg-gray-50">
                 <td class="px-4 py-2.5 text-gray-400">${logs.length - i}</td>
@@ -279,7 +909,6 @@
                 <td class="px-4 py-2.5 text-gray-500">${(wib(l.tgl || '') || '').slice(0,10)}</td>
             </tr>`).join('');
 
-            // Clear button
             document.getElementById('clearBtn').onclick = function() {
                 if (confirm('Hapus semua data download?')) {
                     localStorage.removeItem('tka_downloads');
@@ -288,8 +917,41 @@
             };
         }
 
-        // Auto-refresh every 30s
+        // ===================================================================
+        // LOGIN / LOGOUT
+        // ===================================================================
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const u = document.getElementById('user').value;
+            const p = document.getElementById('pass').value;
+            if (u === ADMIN_USER && p === ADMIN_PASS) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                loadData();
+                renderDashboard().then();
+                refreshFilterTahun();
+                renderTahunTable();
+            } else {
+                document.getElementById('loginErr').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            document.getElementById('dashboard').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('user').value = '';
+            document.getElementById('pass').value = '';
+            document.getElementById('loginErr').classList.add('hidden');
+        });
+
         setInterval(() => { if (!document.getElementById('dashboard').classList.contains('hidden')) renderDashboard().catch(()=>{}); }, 30000);
+
+        // ===================================================================
+        // INIT
+        // ===================================================================
+        loadInitialData().then(() => {
+            // Data ready
+        });
     </script>
 </body>
 </html>
