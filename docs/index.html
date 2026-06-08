@@ -16,9 +16,6 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
     <nav class="bg-gradient-to-r from-primary-700 to-primary-800 shadow-lg">
@@ -44,6 +41,12 @@
         <div id="loadError" class="hidden rounded-xl bg-red-50 p-6 shadow-md mb-6 text-red-700 border border-red-100">
             <i class="fas fa-exclamation-triangle mr-2"></i>
             <span>Gagal memuat data. Periksa koneksi internet.</span>
+        </div>
+
+        <!-- Rate limit warning -->
+        <div id="rateLimitMsg" class="hidden rounded-xl bg-red-50 p-6 shadow-md mb-6 text-red-700 border border-red-100">
+            <i class="fas fa-clock mr-2"></i>
+            <span id="rateLimitText">Terlalu banyak percobaan. Silakan coba lagi dalam 30 detik.</span>
         </div>
 
         <div id="searchCard" class="hidden rounded-2xl bg-white p-6 shadow-xl sm:p-8 mb-6 border border-gray-100">
@@ -86,9 +89,9 @@
                 <p class="mt-1 text-sm text-gray-500">Mencari data...</p>
             </div>
 
-            <div id="errorMsg" class="mt-4 hidden rounded-lg bg-red-50 p-4 text-sm text-red-700">
+            <div id="errorMsg" class="mt-4 hidden rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-100">
                 <i class="fas fa-exclamation-circle mr-1"></i>
-                <span id="errorText">Data tidak ditemukan.</span>
+                <span id="errorText">Data tidak ditemukan atau NISN/Tanggal Lahir salah.</span>
             </div>
 
             <div id="resultCard" class="mt-6 hidden">
@@ -112,60 +115,18 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="mt-4 overflow-hidden rounded-xl border border-gray-200 shadow-sm">
-                    <div class="bg-gradient-to-r from-gray-50 to-gray-100/50 px-4 py-2.5 border-b border-gray-200"><span class="text-xs font-bold uppercase tracking-wider text-gray-500"><i class="fas fa-chart-simple mr-1"></i>Nilai</span></div>
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-4 py-2.5 text-left text-xs font-bold uppercase text-gray-500">Mata Pelajaran</th>
-                                <th class="px-4 py-2.5 text-center text-xs font-bold uppercase text-gray-500">Nilai</th>
-                                <th class="px-4 py-2.5 text-center text-xs font-bold uppercase text-gray-500">Predikat</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <tr><td class="px-4 py-3.5 text-gray-700">Matematika</td>
-                                <td class="px-4 py-3.5 text-center font-bold text-gray-900" id="dispMatScore">-</td>
-                                <td class="px-4 py-3.5 text-center font-semibold" id="dispMatRating">-</td></tr>
-                            <tr class="bg-gray-50/50"><td class="px-4 py-3.5 text-gray-700">Bahasa Indonesia</td>
-                                <td class="px-4 py-3.5 text-center font-bold text-gray-900" id="dispBindoScore">-</td>
-                                <td class="px-4 py-3.5 text-center font-semibold" id="dispBindoRating">-</td></tr>
-                        </tbody>
-                    </table>
-                </div>
                 <div class="mt-6 flex flex-col gap-3">
-                    <button id="previewBtn"
-                        class="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-4 py-3.5 text-sm font-semibold text-white shadow-lg transition-all hover:from-primary-700 hover:to-primary-800 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98]">
-                        <i class="fas fa-file-pdf"></i> Lihat & Download PDF
+                    <button id="downloadBtn"
+                        class="flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:from-green-700 hover:to-emerald-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98]">
+                        <i class="fas fa-download"></i> Download Hasil TKA
                     </button>
+                    <p class="text-xs text-center text-gray-400" id="tokenInfo">Tautan berlaku 60 detik setelah verifikasi</p>
                 </div>
             </div>
-        </div>
 
-        <div id="successCard" class="hidden rounded-2xl bg-white shadow-lg border border-green-100 p-6 mb-6 text-center">
-            <div class="w-14 h-14 mx-auto bg-green-100 rounded-full flex items-center justify-center mb-3">
-                <i class="fas fa-check-circle text-green-500 text-2xl"></i>
-            </div>
-            <h3 class="text-lg font-bold text-gray-800">PDF Berhasil Dibuat</h3>
-            <p class="text-sm text-gray-500 mt-1">File akan otomatis terunduh. Jika tidak, klik tombol di bawah.</p>
-            <div class="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
-                <button id="downloadPdfBtn"
-                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 px-5 py-2.5 text-sm font-semibold text-white shadow-md hover:from-primary-700 hover:to-primary-800 transition-all active:scale-[0.98]">
-                    <i class="fas fa-download"></i> Download PDF
-                </button>
-                <button onclick="this.parentElement.parentElement.classList.add('hidden')"
-                    class="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-all">
-                    Tutup
-                </button>
-            </div>
-        </div>
-
-        <div id="generateLoading" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div class="bg-white rounded-2xl p-8 shadow-2xl text-center border border-gray-100">
-                <div class="w-14 h-14 mx-auto bg-primary-100 rounded-full flex items-center justify-center mb-4">
-                    <i class="fas fa-spinner fa-spin text-primary-600 text-2xl"></i>
-                </div>
-                <p class="text-gray-700 font-semibold">Menghasilkan PDF...</p>
-                <p class="text-xs text-gray-400 mt-1">Mohon tunggu sebentar</p>
+            <div id="downloadProgress" class="hidden mt-4 rounded-xl bg-blue-50 border border-blue-100 p-4 text-center">
+                <i class="fas fa-spinner fa-spin text-blue-600 text-lg"></i>
+                <p class="mt-1 text-sm text-blue-700">Menyiapkan unduhan...</p>
             </div>
         </div>
 
@@ -176,391 +137,279 @@
     </main>
 
     <script>
-        const { PDFDocument, rgb, StandardFonts } = PDFLib;
+        // ===================================================================
+        // CONFIG
+        // ===================================================================
+        const MAP_URL = './encrypted_map.json';
+        const INDEX_URL = './student_index.json';
 
-        const SUPABASE_URL = 'https://skiraowhzwtdcidnhply.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA';
-        let supabase = null;
-        try { supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY); } catch(e) {}
+        let encryptedMap = null;
+        let studentIndex = null;
+        let currentDecrypted = null;   // { nama, nisn, fileId }
+        let downloadTokenTimer = null;
+        let downloadUrl = '';
 
         const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni',
                         'Juli','Agustus','September','Oktober','November','Desember'];
-        let DATA = [];
-        let currentStudent = null;
-        let dataLoaded = false;
 
-        const XLSX_URLS = [
-            './Data%20TKA%20SMP%20Mumtaza.xlsx',
-            'https://raw.githubusercontent.com/smpmumtaza/Hasil-TKA-Mumtaza/main/Data%20TKA%20SMP%20Mumtaza.xlsx'
-        ];
+        // ===================================================================
+        // RATE LIMITING
+        // ===================================================================
+        const RL_KEY = 'tka_rate_limit';
+        const MAX_ATTEMPTS = 3;
+        const LOCKOUT_SECS = 30;
 
-        function parseRows(rows) {
-            for (const r of rows) {
-                let d = r['ddmmyyyy'];
-                if (typeof d === 'number') d = String(d);
-                else if (d && typeof d === 'object' && d instanceof Date) {
-                    const dd = String(d.getDate()).padStart(2,'0');
-                    const mm = String(d.getMonth()+1).padStart(2,'0');
-                    d = dd + mm + d.getFullYear();
-                } else d = String(d || '').trim();
-                r['ddmmyyyy'] = d;
-                r['NISN'] = String(r['NISN'] || '').trim();
-                DATA.push(r);
+        function getRateLimit() {
+            try {
+                const raw = localStorage.getItem(RL_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch(e) {}
+            return { attempts: 0, lockUntil: 0 };
+        }
+
+        function saveRateLimit(rl) {
+            try { localStorage.setItem(RL_KEY, JSON.stringify(rl)); } catch(e) {}
+        }
+
+        function checkRateLimit() {
+            const rl = getRateLimit();
+            const now = Date.now();
+            if (rl.lockUntil > now) {
+                const remaining = Math.ceil((rl.lockUntil - now) / 1000);
+                return { blocked: true, remaining };
+            }
+            return { blocked: false };
+        }
+
+        function recordAttempt(success) {
+            const rl = getRateLimit();
+            const now = Date.now();
+            // Clear lockout if expired
+            if (rl.lockUntil <= now) {
+                if (success) {
+                    rl.attempts = 0;
+                    saveRateLimit(rl);
+                    return;
+                }
+                rl.attempts++;
+                if (rl.attempts >= MAX_ATTEMPTS) {
+                    rl.lockUntil = now + LOCKOUT_SECS * 1000;
+                    rl.attempts = 0;
+                    // Show rate limit message
+                    document.getElementById('rateLimitMsg').classList.remove('hidden');
+                    document.getElementById('rateLimitText').textContent =
+                        'Terlalu banyak percobaan. Silakan coba lagi dalam ' + LOCKOUT_SECS + ' detik.';
+                    setTimeout(() => document.getElementById('rateLimitMsg').classList.add('hidden'), LOCKOUT_SECS * 1000);
+                }
+                saveRateLimit(rl);
             }
         }
 
+        // ===================================================================
+        // CRYPTO — Web Crypto API (PBKDF2 + AES-256-GCM)
+        // ===================================================================
+        async function deriveKey(nisn, ddmmyyyy) {
+            const password = nisn + ':' + ddmmyyyy;
+            const salt = new TextEncoder().encode('mumtaza-tka-2026');
+            const keyMaterial = await crypto.subtle.importKey(
+                'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']
+            );
+            return crypto.subtle.deriveKey(
+                { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+                keyMaterial,
+                { name: 'AES-GCM', length: 256 },
+                false,
+                ['decrypt']
+            );
+        }
+
+        async function decryptStudentData(nisn, ddmmyyyy, encData) {
+            const key = await deriveKey(nisn, ddmmyyyy);
+            const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+            const iv = b64(encData.iv);
+            const ct = b64(encData.ciphertext);
+            const tag = b64(encData.tag);
+            const combined = new Uint8Array(ct.length + tag.length);
+            combined.set(ct); combined.set(tag, ct.length);
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
+            return JSON.parse(new TextDecoder().decode(decrypted));
+        }
+
+        async function sha256Hex(str) {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // ===================================================================
+        // LOAD DATA
+        // ===================================================================
         async function loadData() {
             const loadingEl = document.getElementById('loadingData');
             const errorEl = document.getElementById('loadError');
             const searchCard = document.getElementById('searchCard');
-            for (const url of XLSX_URLS) {
-                try {
-                    const resp = await fetch(url);
-                    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-                    const buf = await resp.arrayBuffer();
-                    const wb = XLSX.read(buf, { type: 'array' });
-                    const ws = wb.Sheets[wb.SheetNames[0]];
-                    const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
-                    parseRows(rows);
-                    dataLoaded = true;
-                    loadingEl.classList.add('hidden');
-                    searchCard.classList.remove('hidden');
-                    return;
-                } catch (e) { console.warn('Fetch failed for ' + url, e); }
+            try {
+                const [mapResp, idxResp] = await Promise.all([
+                    fetch(MAP_URL + '?v=' + Date.now()),
+                    fetch(INDEX_URL + '?v=' + Date.now()),
+                ]);
+                if (!mapResp.ok || !idxResp.ok) throw new Error('HTTP error');
+                encryptedMap = await mapResp.json();
+                studentIndex = await idxResp.json();
+                loadingEl.classList.add('hidden');
+                searchCard.classList.remove('hidden');
+            } catch (e) {
+                console.warn('Load failed:', e);
+                loadingEl.classList.add('hidden');
+                errorEl.classList.remove('hidden');
             }
-            loadingEl.classList.add('hidden');
-            errorEl.classList.remove('hidden');
         }
 
+        // ===================================================================
+        // FORMAT HELPERS
+        // ===================================================================
         function formatDate(s) {
             s = String(s);
             if (s.length === 8 && /^\d{8}$/.test(s)) {
                 const d = s.slice(0,2), m = s.slice(2,4), y = s.slice(4);
-                const mn = MONTHS[parseInt(m)-1] || m;
-                return d + ' ' + mn + ' ' + y;
+                return d + ' ' + (MONTHS[parseInt(m)-1] || m) + ' ' + y;
             }
             return s;
         }
 
-        function fmtSkor(v) {
-            if (v === '' || v === null || v === undefined) return '';
-            let n = typeof v === 'number' ? v : parseFloat(String(v).replace(',', '.'));
-            if (isNaN(n)) return String(v).trim();
-            return n.toFixed(2).replace('.', ',');
+        // ===================================================================
+        // DOWNLOAD TOKEN (60s expiry)
+        // ===================================================================
+        function clearDownloadToken() {
+            downloadUrl = '';
+            currentDecrypted = null;
+            document.getElementById('tokenInfo').textContent = 'Tautan kedaluwarsa. Silakan verifikasi ulang.';
+            document.getElementById('downloadBtn').disabled = true;
+            document.getElementById('downloadBtn').innerHTML = '<i class="fas fa-clock"></i> Verifikasi Ulang';
         }
 
-        function findStudent(nisn, date) {
-            for (const r of DATA) if (r['NISN'] === nisn && r['ddmmyyyy'] === date) return r;
-            return null;
+        function startDownloadTimer() {
+            if (downloadTokenTimer) clearTimeout(downloadTokenTimer);
+            document.getElementById('tokenInfo').textContent = 'Tautan berlaku 60 detik setelah verifikasi';
+            downloadTokenTimer = setTimeout(clearDownloadToken, 60000);
         }
 
-        // ---------- PDF generation with pdf-lib ----------
-        /* layout (PDF points, A4 = 595.28 x 841.89)
-           px    = content left edge
-           cx    = page center
-           col_w = content width (right edge - px)
-           y_bot = y coordinate from bottom of page
-        */
-        const PW = 595.28, PH = 841.89;
-        const px = 82, col_w = 431;
-
-        function wrapLines(font, text, maxW, size) {
-            const words = text.split(' '); const lines = [];
-            let line = '';
-            for (const w of words) {
-                const test = line ? line + ' ' + w : w;
-                if (font.widthOfTextAtSize(test, size) > maxW) {
-                    if (line) { lines.push(line); line = w; }
-                    else { lines.push(w); line = ''; }
-                } else { line = test; }
-            }
-            if (line) lines.push(line);
-            return lines;
-        }
-
-        function drawTable(page, font, boldFont, rows, x, y0, colWidths, rowH) {
-            const nCols = colWidths.length;
-            const tableW = colWidths.reduce((a,b) => a+b, 0);
-            // header row
-            let yy = y0;
-            for (let r = 0; r < rows.length; r++) {
-                const cells = rows[r];
-                let xx = x;
-                for (let c = 0; c < nCols; c++) {
-                    const cw = colWidths[c];
-                    // border
-                    page.drawRectangle({
-                        x: xx, y: yy - rowH, width: cw, height: rowH,
-                        borderColor: rgb(0,0,0), borderWidth: 0.5,
-                        color: rgb(1,1,1),
-                    });
-                    // text
-                    const isBold = r === 0;
-                    const f = isBold ? boldFont : font;
-                    const txt = String(cells[c] || '');
-                    let tx = xx + 4;
-                    if (c !== 1) { // center for non-subject cols
-                        const tw = f.widthOfTextAtSize(txt, 10);
-                        tx = xx + (cw - tw) / 2;
-                    }
-                    page.drawText(txt, { x: tx, y: yy - rowH + 4, size: 10, font: f, color: rgb(0,0,0) });
-                    // right border
-                    if (c < nCols - 1) {
-                        page.drawLine({ start: { x: xx + cw, y: yy }, end: { x: xx + cw, y: yy - rowH }, thickness: 0.5, color: rgb(0,0,0) });
-                    }
-                    xx += cw;
-                }
-                // bottom border
-                page.drawLine({ start: { x: x, y: yy - rowH }, end: { x: x + tableW, y: yy - rowH }, thickness: 0.5, color: rgb(0,0,0) });
-                yy -= rowH;
-            }
-        }
-
-        async function generatePDF(student) {
-            const pdfDoc = await PDFDocument.create();
-            const page = pdfDoc.addPage([PW, PH]);
-
-            // Load images
-            const [bgBytes, sigBytes] = await Promise.all([
-                fetch('images/image1.jpg').then(r => r.arrayBuffer()),
-                fetch('images/image2.jpg').then(r => r.arrayBuffer()),
-            ]);
-            const bgImg = await pdfDoc.embedJpg(bgBytes);
-            const sigImg = await pdfDoc.embedJpg(sigBytes);
-
-            // Full-page background
-            page.drawImage(bgImg, { x: 0, y: 0, width: PW, height: PH });
-
-            // Fonts
-            const font = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-            const bold = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
-            const cx = PW / 2;
-
-            const txt = (text, x, y, opts = {}) => {
-                const f = opts.bold ? bold : font;
-                const sz = opts.size || 12;
-                page.drawText(text, { x, y, size: sz, font: f, color: rgb(0,0,0) });
-            };
-
-            const drawJustifiedLine = (words, x, y, lineWidth, size) => {
-                const n = words.length;
-                if (n <= 1) {
-                    page.drawText(words[0], { x, y, size, font, color: rgb(0,0,0) });
-                    return;
-                }
-                const totalWordWidth = words.reduce((s, w) => s + font.widthOfTextAtSize(w, size), 0);
-                const gap = (lineWidth - totalWordWidth) / (n - 1);
-                let cx = x;
-                for (const w of words) {
-                    page.drawText(w, { x: cx, y, size, font, color: rgb(0,0,0) });
-                    cx += font.widthOfTextAtSize(w, size) + gap;
-                }
-            };
-
-            // Title
-            let t = 'SURAT KETERANGAN HASIL TES KEMAMPUAN AKADEMIK';
-            txt(t, cx - font.widthOfTextAtSize(t, 13)/2, 710, { size: 13, bold: true });
-            t = 'Nomor : 832/MIS-SMP/B/SKT/VI/2026';
-            txt(t, cx - font.widthOfTextAtSize(t, 11)/2, 688, { size: 11 });
-
-            // Preamble
-            const lx = px + 5;
-            let y = 660;
-            txt('Yang bertanda tangan di bawah ini :', lx, y, { size: 11 }); y -= 20;
-
-            const preamble = [
-                ['Nama', 'Khalimi, M.Pd'],
-                ['Jabatan', 'Kepala SMP Mumtaza Islamic School'],
-            ];
-            for (const [l, v] of preamble) {
-                txt(l, lx, y, { size: 11 });
-                txt(':  ' + v, lx + 110, y, { size: 11 });
-                y -= 20;
-            }
-
-            const alamat = 'Jl. Kayu Manis 2 No.11 RT 01 RW 02. Pondok Cabe Udik, Pamulang, Tangerang Selatan 15417';
-            txt('Alamat Sekolah', lx, y, { size: 11 });
-            const alamatLines = wrapLines(font, ':  ' + alamat, col_w - 115, 11);
-            txt(alamatLines[0], lx + 110, y, { size: 11 }); y -= 18;
-            for (let i = 1; i < alamatLines.length; i++) {
-                txt(alamatLines[i], lx + 110, y, { size: 11 });
-                y -= 18;
-            }
-            y -= 2;
-
-            txt('Menerangkan bahwa nama di bawah ini :', lx, y, { size: 11 }); y -= 22;
-
-            // Student info
-            const vx = lx + 180;
-            const infos = [
-                ['Nama', student['Nama'] || ''],
-                ['Tempat dan Tanggal Lahir', formatDate(student['ddmmyyyy'])],
-                ['Nomor Induk Siswa Nasional', student['NISN']],
-                ['Nomor Peserta TKA', student['Nomor_Peserta'] || ''],
-            ];
-            for (const [l, v] of infos) {
-                txt(l, lx + 5, y, { bold: true, size: 11 });
-                txt(':  ' + v, vx, y, { size: 11 });
-                y -= 20;
-            }
-
-            // Body text
-            y -= 6;
-            const bodyText = 'Telah mengikuti Tes Kemampuan Akademik (TKA) Tahun Pelajaran 2025/2026 dengan hasil sebagai berikut :';
-            const bodyLines = wrapLines(font, bodyText, col_w - 10, 11);
-            for (const line of bodyLines) {
-                txt(line, px + 5, y, { size: 11 });
-                y -= 16;
-            }
-
-            // Score table
-            y -= 6;
-            const colW = [48, 207, 74, col_w - 48 - 207 - 74];
-            const rows = [
-                ['No.', 'Mata Pelajaran', 'Nilai', 'Predikat'],
-                ['1.', 'Matematika', fmtSkor(student['Matematika_Score']), student['Matematika_Rating'] || ''],
-                ['2.', 'Bahasa Indonesia', fmtSkor(student['Bahasa_Indonesia_Score']), student['Bahasa_Indonesia_Rating'] || ''],
-            ];
-            drawTable(page, font, bold, rows, px + 4, y, colW, 22);
-            const afterTbl = y - 22 * 3;
-
-            // Note after table (justified)
-            let ny = afterTbl - 14;
-            const noteText = 'Nilai tersebut berdasarkan Daftar Kolektif Hasil Tes Kemampuan Akademik (DKHTKA) Dinas Pendidikan dan Kebudayaan Kota Tangerang Selatan Tahun 2026. Surat keterangan ini bersifat sementara sebagai bukti perolehan hasil TKA dan dapat digunakan untuk keperluan administrasi yang diperlukan sebelum dokumen Sertifikat Hasil Tes Kemampuan Akademik (SHTKA) diterbitkan.';
-            const noteLines = wrapLines(font, noteText, col_w - 10, 11);
-            for (let i = 0; i < noteLines.length; i++) {
-                const line = noteLines[i];
-                if (i === noteLines.length - 1) {
-                    txt(line, px + 5, ny, { size: 11 });
-                } else {
-                    drawJustifiedLine(line.split(' '), px + 5, ny, col_w - 10, 11);
-                }
-                ny -= 16;
-            }
-
-            // Signature area (right-aligned)
-            const sigRight = px + col_w;
-            const sigTop = ny - 20;
-            const dateText = 'Tangerang Selatan, 26 Mei 2026';
-            txt(dateText, sigRight - font.widthOfTextAtSize(dateText, 11), sigTop, { size: 11 });
-            const kepalaText = 'Kepala Sekolah,';
-            txt(kepalaText, sigRight - font.widthOfTextAtSize(kepalaText, 11), sigTop - 18, { size: 11 });
-
-            const sigW = 110;
-            const sigH = sigW * sigImg.height / sigImg.width;
-            page.drawImage(sigImg, { x: sigRight - sigW, y: sigTop - 18 - 8 - sigH, width: sigW, height: sigH });
-            const afterSig = sigTop - 18 - 8 - sigH - 8;
-
-            const namaText = 'Khalimi, M.Pd';
-            txt(namaText, sigRight - bold.widthOfTextAtSize(namaText, 11), afterSig, { size: 11, bold: true });
-
-            // Save
-            const pdfBytes = await pdfDoc.save();
-            return new Blob([pdfBytes], { type: 'application/pdf' });
-        }
-
-        // ---------- UI event handlers ----------
-        document.getElementById('searchForm').addEventListener('submit', function(e) {
+        // ===================================================================
+        // SEARCH FORM
+        // ===================================================================
+        document.getElementById('searchForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            ['errorMsg','resultCard','successCard'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            ['errorMsg','resultCard','downloadProgress'].forEach(id =>
+                document.getElementById(id).classList.add('hidden'));
+
+            // Check rate limit
+            const rl = checkRateLimit();
+            if (rl.blocked) {
+                document.getElementById('rateLimitMsg').classList.remove('hidden');
+                document.getElementById('rateLimitText').textContent =
+                    'Terlalu banyak percobaan. Silakan coba lagi ' + rl.remaining + ' detik lagi.';
+                return;
+            }
+
             const nisn = document.getElementById('nisn').value.trim();
             const date = document.getElementById('date').value.trim();
             if (!nisn || !date) return;
+
             document.getElementById('searchLoading').classList.remove('hidden');
             document.getElementById('searchBtn').disabled = true;
-            setTimeout(() => {
-                document.getElementById('searchLoading').classList.add('hidden');
-                document.getElementById('searchBtn').disabled = false;
-                const student = findStudent(nisn, date);
-                if (student) {
-                    currentStudent = student;
-                    document.getElementById('dispNama').textContent = student['Nama'] || '-';
-                    document.getElementById('dispNISN').textContent = student['NISN'];
-                    document.getElementById('dispNoPeserta').textContent = student['Nomor_Peserta'] || '-';
-                    document.getElementById('dispMatScore').textContent = fmtSkor(student['Matematika_Score']);
-                    document.getElementById('dispMatRating').textContent = student['Matematika_Rating'] || '-';
-                    document.getElementById('dispBindoScore').textContent = fmtSkor(student['Bahasa_Indonesia_Score']);
-                    document.getElementById('dispBindoRating').textContent = student['Bahasa_Indonesia_Rating'] || '-';
-                    const mr = student['Matematika_Rating'] || '-', br = student['Bahasa_Indonesia_Rating'] || '-';
-                    const mc = mr === 'Baik' ? 'text-green-600' : mr === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
-                    const bc = br === 'Baik' ? 'text-green-600' : br === 'Memadai' ? 'text-yellow-600' : 'text-red-600';
-                    document.getElementById('dispMatRating').className = 'px-4 py-3 text-center font-semibold ' + mc;
-                    document.getElementById('dispBindoRating').className = 'px-4 py-3 text-center font-semibold ' + bc;
-                    document.getElementById('resultCard').classList.remove('hidden');
-                } else {
+
+            // Small delay for UX
+            await new Promise(r => setTimeout(r, 300));
+
+            try {
+                const nisnHash = await sha256Hex(nisn);
+                const encData = encryptedMap ? encryptedMap[nisnHash] : null;
+
+                if (!encData) {
+                    recordAttempt(false);
+                    document.getElementById('searchLoading').classList.add('hidden');
+                    document.getElementById('searchBtn').disabled = false;
                     document.getElementById('errorText').textContent = 'Data tidak ditemukan. Periksa kembali NISN dan Tanggal Lahir.';
                     document.getElementById('errorMsg').classList.remove('hidden');
+                    return;
                 }
-            }, 300);
-        });
 
-        document.getElementById('previewBtn').addEventListener('click', async function() {
-            if (!currentStudent) return;
-            document.getElementById('generateLoading').classList.remove('hidden');
-            const s = currentStudent;
-            const fileName = 'Hasil_TKA_' + (s['Nama'] || '').replace(/\s+/g, '_') + '.pdf';
-            try {
-                // record download (localStorage + Supabase)
+                // Try to decrypt — will throw if wrong NISN/date
+                let decrypted;
                 try {
-                    const logs = JSON.parse(localStorage.getItem('tka_downloads') || '[]');
-                    logs.push({ nisn: s['NISN'], nama: s['Nama'] || '', tgl: new Date().toISOString() });
-                    localStorage.setItem('tka_downloads', JSON.stringify(logs));
-                } catch(e) {}
-                try {
-                    supabase && supabase.from('downloads').insert({ nisn: s['NISN'], nama: s['Nama'] || '' }).then().catch(()=>{});
-                } catch(e) {}
+                    decrypted = await decryptStudentData(nisn, date, encData);
+                } catch (err) {
+                    recordAttempt(false);
+                    document.getElementById('searchLoading').classList.add('hidden');
+                    document.getElementById('searchBtn').disabled = false;
+                    document.getElementById('errorText').textContent = 'NISN atau Tanggal Lahir tidak cocok.';
+                    document.getElementById('errorMsg').classList.remove('hidden');
+                    return;
+                }
 
-                const blob = await generatePDF(s);
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url; a.download = fileName;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                window.open(url, '_blank');
-                document.getElementById('downloadPdfBtn').onclick = function() {
-                    const a2 = document.createElement('a');
-                    a2.href = url; a2.download = fileName;
-                    document.body.appendChild(a2); a2.click(); document.body.removeChild(a2);
-                };
-                document.getElementById('successCard').classList.remove('hidden');
-            } catch (e) {
-                console.error(e);
-                document.getElementById('errorText').textContent = 'Gagal menghasilkan PDF. Silakan coba lagi.';
+                // Success — reset attempts
+                recordAttempt(true);
+                currentDecrypted = { ...decrypted, nisn };
+                document.getElementById('searchLoading').classList.add('hidden');
+                document.getElementById('searchBtn').disabled = false;
+
+                // Show student info
+                document.getElementById('dispNama').textContent = decrypted.nama || '-';
+                document.getElementById('dispNISN').textContent = nisn;
+                document.getElementById('dispNoPeserta').textContent = decrypted.nomor_peserta || '-';
+                document.getElementById('resultCard').classList.remove('hidden');
+
+                // Prepare download
+                downloadUrl = 'https://drive.google.com/uc?export=download&id=' + decrypted.fileId;
+                document.getElementById('downloadBtn').disabled = false;
+                document.getElementById('downloadBtn').innerHTML = '<i class="fas fa-download"></i> Download Hasil TKA';
+                document.getElementById('tokenInfo').textContent = 'Tautan berlaku 60 detik';
+                startDownloadTimer();
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('searchLoading').classList.add('hidden');
+                document.getElementById('searchBtn').disabled = false;
+                document.getElementById('errorText').textContent = 'Terjadi kesalahan. Silakan coba lagi.';
                 document.getElementById('errorMsg').classList.remove('hidden');
-            } finally {
-                document.getElementById('generateLoading').classList.add('hidden');
             }
         });
 
-        window.APP_SETTINGS = {};
-        async function loadAppSettings() {
-            try {
-                const sC = window.supabase && window.supabase.createClient(
-                    'https://skiraowhzwtdcidnhply.supabase.co',
-                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA'
-                );
-                const result = await Promise.race([
-                    sC.from('settings').select('key,value'),
-                    new Promise((_, r) => setTimeout(() => r('timeout'), 3000))
-                ]);
-                if (result && result.data) for (const r of result.data) window.APP_SETTINGS[r.key] = r.value;
-            } catch(e) {}
-            const def = { app_acronym:'TKA', app_subtitle:'Hasil Tes Kemampuan Akademik', nisn_label:'NISN', ttl_label:'Tanggal Lahir', no_peserta_label:'Nomor Peserta' };
-            for (const [k,v] of Object.entries(def)) if (!window.APP_SETTINGS[k]) window.APP_SETTINGS[k] = v;
-            try {
-                const s = window.APP_SETTINGS;
-                document.title = 'Hasil ' + s.app_acronym + ' - SMP Mumtaza';
-                const g = id => document.getElementById(id);
-                if (g('lblSubtitle')) g('lblSubtitle').textContent = s.app_subtitle;
-                if (g('lblSearchTitle')) g('lblSearchTitle').textContent = 'Cari Hasil ' + s.app_acronym;
-                if (g('lblSearchDesc')) g('lblSearchDesc').textContent = 'Masukkan ' + s.nisn_label + ' dan ' + s.ttl_label + ' untuk melihat hasil';
-                if (g('lblNisn')) g('lblNisn').textContent = s.nisn_label;
-                if (g('lblTtl')) g('lblTtl').textContent = s.ttl_label + ' (ddmmyyyy)';
-                if (g('dispNisnLabel')) g('dispNisnLabel').textContent = s.nisn_label;
-                if (g('dispNoPesertaLabel')) g('dispNoPesertaLabel').textContent = s.no_peserta_label;
-            } catch(e) {}
-        }
+        // ===================================================================
+        // DOWNLOAD BUTTON
+        // ===================================================================
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            if (!downloadUrl) {
+                clearDownloadToken();
+                return;
+            }
+            // Open in new tab / trigger download
+            window.open(downloadUrl, '_blank');
+            document.getElementById('tokenInfo').textContent = 'Unduhan dimulai. Tautan akan kedaluwarsa dalam 60 detik.';
+        });
 
-        loadAppSettings(); loadData();
+        // ===================================================================
+        // SETTINGS (optional — update labels from localStorage cache)
+        // ===================================================================
+        try {
+            const raw = localStorage.getItem('tka_settings_cache');
+            if (raw) {
+                const s = JSON.parse(raw);
+                const g = id => document.getElementById(id);
+                if (g('lblSubtitle') && s.app_subtitle) g('lblSubtitle').textContent = s.app_subtitle;
+                if (g('lblSearchTitle') && s.app_acronym) g('lblSearchTitle').textContent = 'Cari Hasil ' + s.app_acronym;
+                if (g('lblSearchDesc') && s.nisn_label) g('lblSearchDesc').textContent = 'Masukkan ' + s.nisn_label + ' dan ' + (s.ttl_label || 'Tanggal Lahir') + ' untuk melihat hasil';
+                if (g('lblNisn') && s.nisn_label) g('lblNisn').textContent = s.nisn_label;
+                if (g('lblTtl') && s.ttl_label) g('lblTtl').textContent = s.ttl_label + ' (ddmmyyyy)';
+                if (g('dispNisnLabel') && s.nisn_label) g('dispNisnLabel').textContent = s.nisn_label;
+                if (g('dispNoPesertaLabel') && s.no_peserta_label) g('dispNoPesertaLabel').textContent = s.no_peserta_label;
+                document.title = 'Hasil ' + s.app_acronym + ' - SMP Mumtaza';
+            }
+        } catch(e) {}
+
+        // ===================================================================
+        // INIT
+        // ===================================================================
+        loadData();
     </script>
 </body>
 </html>
