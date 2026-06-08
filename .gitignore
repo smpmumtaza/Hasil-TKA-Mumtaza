@@ -5,3 +5,5 @@ __pycache__/
 .DS_Store
 *.tmp
 drive_files.csv
+temp_doc.xml
+temp_images/
