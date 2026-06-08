@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-check_mapping.py — Admin verification tool for the encrypted student map.
+check_mapping.py ? Admin verification tool for the encrypted student map.
 
 Reads docs/encrypted_map.json and docs/student_index.json and reports:
   - Total entries
@@ -60,7 +60,7 @@ def load_json(path: Path, label: str):
 
 def show_summary(enc_map, idx_map):
     print("=" * 55)
-    print("  ENCRYPTED MAP — SUMMARY")
+    print("  ENCRYPTED MAP ? SUMMARY")
     print("=" * 55)
     print(f"  Student index entries:      {len(idx_map)}")
     print(f"  Encrypted map entries:      {len(enc_map)}")
@@ -68,14 +68,14 @@ def show_summary(enc_map, idx_map):
           f"({100 * len(enc_map) // len(idx_map) if idx_map else 0}%)")
     missing = [h for h in idx_map if h not in enc_map]
     if missing:
-        print(f"\n  ⚠  Students WITHOUT encrypted entry ({len(missing)}):")
+        print(f"\n  !!  Students WITHOUT encrypted entry ({len(missing)}):")
         for h in missing[:10]:
             print(f"       {idx_map[h]}")
         if len(missing) > 10:
             print(f"       ... and {len(missing) - 10} more")
     extra = [h for h in enc_map if h not in idx_map]
     if extra:
-        print(f"\n  ⚠  Orphaned encrypted entries (no index): {len(extra)}")
+        print(f"\n  !!  Orphaned encrypted entries (no index): {len(extra)}")
     print("=" * 55)
 
 
@@ -107,9 +107,9 @@ def test_decryption(enc_map, idx_map, nisn, dob):
     if expected_name != name:
         print(f"[WARN] Name mismatch: index says '{name}', payload says '{expected_name}'")
 
-    print(f"[✓] Decrypted OK: {payload.get('nama', '?')} (NISN: {nisn})")
+    print(f"[?] Decrypted OK: {payload.get('nama', '?')} (NISN: {nisn})")
     print(f"    Nomor Peserta: {payload.get('nomor_peserta', '?')}")
-    print(f"    ✓ fileId present ({len(payload.get('fileId', ''))} chars)")
+    print(f"    ? fileId present ({len(payload.get('fileId', ''))} chars)")
     # Deliberately NOT printing the fileId value
 
 

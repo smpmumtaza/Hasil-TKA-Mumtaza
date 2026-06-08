@@ -2,11 +2,11 @@
 """
 generate_encrypted_map.py
 
-Reads student data from XLSX and a CSV of NISN→Google Drive file ID mappings,
+Reads student data from XLSX and a CSV of NISN->Google Drive file ID mappings,
 then outputs two JSON files for the client-side secure download system:
 
-  docs/encrypted_map.json   — AES-256-GCM encrypted payloads, keyed by SHA256(NISN)
-  docs/student_index.json   — NISN_hash → Nama lookup (for "data ditemukan" feedback)
+  docs/encrypted_map.json   ? AES-256-GCM encrypted payloads, keyed by SHA256(NISN)
+  docs/student_index.json   ? NISN_hash -> Nama lookup (for "data ditemukan" feedback)
 
 Usage:
   1. Prepare drive_files.csv with columns: NISN, drive_file_id
@@ -24,6 +24,7 @@ import hashlib
 import json
 import csv
 import base64
+import os
 import sys
 from pathlib import Path
 
@@ -33,7 +34,7 @@ from cryptography.hazmat.primitives import hashes
 import openpyxl
 
 # ---------------------------------------------------------------------------
-# Configuration – do NOT hardcode plain Drive IDs here
+# Configuration -- do NOT hardcode plain Drive IDs here
 # ---------------------------------------------------------------------------
 SALT = b"mumtaza-tka-2026"
 PBKDF2_ITERATIONS = 100_000
@@ -75,7 +76,7 @@ def encrypt_payload(key: bytes, payload: dict) -> dict:
     """
     aesgcm = AESGCM(key)
     # 96-bit IV / nonce
-    iv = AESGCM.generate_nonce()
+    iv = os.urandom(12)
     plaintext = json.dumps(payload, separators=(",", ":")).encode("utf-8")
     # AESGCM.encrypt returns ciphertext + 16-byte tag appended
     ct_with_tag = aesgcm.encrypt(iv, plaintext, None)
@@ -93,7 +94,7 @@ def encrypt_payload(key: bytes, payload: dict) -> dict:
 # ---------------------------------------------------------------------------
 def load_xlsx(path: Path) -> dict:
     """
-    Return a dict keyed by NISN → {nama, ddmmyyyy, nomor_peserta, ...}
+    Return a dict keyed by NISN -> {nama, ddmmyyyy, nomor_peserta, ...}
     """
     wb = openpyxl.load_workbook(path)
     ws = wb.active
@@ -122,7 +123,7 @@ def load_xlsx(path: Path) -> dict:
 # Load drive_file_id CSV
 # ---------------------------------------------------------------------------
 def load_drive_csv(path: Path) -> dict:
-    """Return dict NISN → drive_file_id from CSV."""
+    """Return dict NISN -> drive_file_id from CSV."""
     mapping = {}
     with open(path, encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
@@ -148,13 +149,13 @@ def main():
         sys.exit(1)
 
     # ---- load data ---------------------------------------------------------
-    print(f"Loading students from  {XLSX_PATH} …")
+    print(f"Loading students from  {XLSX_PATH} ...")
     students = load_xlsx(XLSX_PATH)
-    print(f"  → {len(students)} students loaded")
+    print(f"  -> {len(students)} students loaded")
 
-    print(f"Loading Drive IDs from {CSV_PATH} …")
+    print(f"Loading Drive IDs from {CSV_PATH} ...")
     drive_map = load_drive_csv(CSV_PATH)
-    print(f"  → {len(drive_map)} Drive file IDs loaded")
+    print(f"  -> {len(drive_map)} Drive file IDs loaded")
 
     # ---- build encrypted map -----------------------------------------------
     encrypted_map = {}
@@ -168,10 +169,10 @@ def main():
         drive_id = drive_map.get(nisn)
 
         if not drive_id:
-            errors.append(f"  ⚠  {nisn} ({nama}): no Drive file ID in CSV, skipped")
+            errors.append(f"  !!  {nisn} ({nama}): no Drive file ID in CSV, skipped")
             continue
         if not dob:
-            errors.append(f"  ⚠  {nisn} ({nama}): missing birth date, skipped")
+            errors.append(f"  !!  {nisn} ({nama}): missing birth date, skipped")
             continue
 
         payload = {
@@ -184,7 +185,7 @@ def main():
             key = derive_key(nisn, dob)
             enc = encrypt_payload(key, payload)
         except Exception as e:
-            errors.append(f"  ⚠  {nisn} ({nama}): encryption failed – {e}")
+            errors.append(f"  !!  {nisn} ({nama}): encryption failed -- {e}")
             continue
 
         nisn_hash = sha256_hex(nisn)
@@ -197,11 +198,11 @@ def main():
 
     with open(OUTPUT_ENCRYPTED, "w", encoding="utf-8") as f:
         json.dump(encrypted_map, f, indent=2, ensure_ascii=False)
-    print(f"\n✅ Encrypted map written → {OUTPUT_ENCRYPTED}")
+    print(f"\n[OK] Encrypted map written -> {OUTPUT_ENCRYPTED}")
 
     with open(OUTPUT_INDEX, "w", encoding="utf-8") as f:
         json.dump(index_map, f, indent=2, ensure_ascii=False)
-    print(f"✅ Student index written  → {OUTPUT_INDEX}")
+    print(f"[OK] Student index written  -> {OUTPUT_INDEX}")
 
     # ---- summary -----------------------------------------------------------
     print(f"\n{'='*50}")
@@ -217,7 +218,7 @@ def main():
 
     # Sanity-check: try decrypting the first entry
     if encrypted_map:
-        print("\n🔍 Sanity-check: decrypting first entry …")
+        print("\n? Sanity-check: decrypting first entry ...")
         try:
             first_hash = next(iter(encrypted_map))
             # Re-discover NISN from the hash (only possible because we know it)
@@ -231,9 +232,9 @@ def main():
             aesgcm = AESGCM(k)
             decrypted = aesgcm.decrypt(iv, ct + tag, None)
             recovered = json.loads(decrypted.decode("utf-8"))
-            print(f"  ✅ Decrypted OK: {recovered['nama']} → fileId={recovered['fileId'][:8]}…")
+            print(f"  [OK] Decrypted OK: {recovered['nama']} -> fileId={recovered['fileId'][:8]}...")
         except Exception as e:
-            print(f"  ❌ Sanity-check FAILED: {e}", file=sys.stderr)
+            print(f"  [FAIL] Sanity-check FAILED: {e}", file=sys.stderr)
             sys.exit(1)
 
 
