@@ -25,7 +25,7 @@
                     <img src="images/logo.png" alt="Mumtaza" class="h-10 w-10 rounded-full object-cover ring-2 ring-white/30">
                     <div>
                         <h1 class="text-lg font-bold text-white">SMP Mumtaza</h1>
-                        <p class="text-xs text-primary-100 -mt-1" id="lblSubtitle">Hasil Tes Kemampuan Akademik</p>
+                        <p class="text-xs text-primary-100 -mt-1">Hasil Tes Kemampuan Akademik</p>
                     </div>
                 </div>
             </div>
@@ -35,7 +35,7 @@
     <main class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <div id="loadingData" class="flex items-center justify-center gap-3 rounded-xl bg-white/90 backdrop-blur p-8 shadow-lg mb-6 border border-gray-100">
             <i class="fas fa-spinner fa-spin text-primary-600 text-2xl"></i>
-            <span class="text-gray-600 font-medium">Memuat data siswa...</span>
+            <span class="text-gray-600 font-medium">Memuat data...</span>
         </div>
 
         <div id="loadError" class="hidden rounded-xl bg-red-50 p-6 shadow-md mb-6 text-red-700 border border-red-100">
@@ -43,10 +43,9 @@
             <span>Gagal memuat data. Periksa koneksi internet.</span>
         </div>
 
-        <!-- Rate limit warning -->
-        <div id="rateLimitMsg" class="hidden rounded-xl bg-red-50 p-6 shadow-md mb-6 text-red-700 border border-red-100">
-            <i class="fas fa-clock mr-2"></i>
-            <span id="rateLimitText">Terlalu banyak percobaan. Silakan coba lagi dalam 30 detik.</span>
+        <div id="rateLimitBanner" class="hidden rounded-xl bg-orange-50 border border-orange-200 p-4 mb-6 text-orange-700 text-sm text-center">
+            <i class="fas fa-clock mr-1"></i>
+            <span id="rateLimitText">Terlalu banyak percobaan. Coba lagi dalam 30 detik.</span>
         </div>
 
         <div id="searchCard" class="hidden rounded-2xl bg-white p-6 shadow-xl sm:p-8 mb-6 border border-gray-100">
@@ -54,25 +53,25 @@
                 <div class="mx-auto w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center mb-3">
                     <i class="fas fa-search text-primary-600 text-lg"></i>
                 </div>
-                <h2 class="text-xl font-bold text-gray-800" id="lblSearchTitle">Cari Hasil TKA</h2>
-                <p class="mt-1 text-sm text-gray-500" id="lblSearchDesc">Masukkan NISN dan Tanggal Lahir untuk melihat hasil</p>
+                <h2 class="text-xl font-bold text-gray-800">Cari Hasil TKA</h2>
+                <p class="mt-1 text-sm text-gray-500">Masukkan NISN dan Tanggal Lahir untuk mengunduh hasil</p>
             </div>
-            <form id="searchForm" class="space-y-5">
+            <form id="searchForm" class="space-y-5" autocomplete="off">
                 <div class="grid gap-5 sm:grid-cols-2">
                     <div>
-                        <label for="nisn" class="block text-sm font-medium text-gray-700" id="lblNisn">NISN</label>
+                        <label for="nisn" class="block text-sm font-medium text-gray-700">NISN</label>
                         <div class="relative mt-1.5">
                             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5"><i class="fas fa-id-card text-gray-400 text-sm"></i></div>
-                            <input type="text" id="nisn" name="nisn" required inputmode="numeric" pattern="\d*"
+                            <input type="text" id="nisn" name="nisn" required inputmode="numeric" pattern="\d*" autocomplete="off"
                                 class="block w-full rounded-xl border border-gray-300 bg-gray-50 pl-10 pr-3.5 py-3 text-sm placeholder-gray-400 transition-all focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                                 placeholder="Contoh: 1234567890" maxlength="20">
                         </div>
                     </div>
                     <div>
-                        <label for="date" class="block text-sm font-medium text-gray-700" id="lblTtl">Tanggal Lahir (ddmmyyyy)</label>
+                        <label for="date" class="block text-sm font-medium text-gray-700">Tanggal Lahir (ddmmyyyy)</label>
                         <div class="relative mt-1.5">
                             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5"><i class="fas fa-calendar text-gray-400 text-sm"></i></div>
-                            <input type="text" id="date" name="date" required
+                            <input type="password" id="date" name="date" required autocomplete="off"
                                 class="block w-full rounded-xl border border-gray-300 bg-gray-50 pl-10 pr-3.5 py-3 text-sm placeholder-gray-400 transition-all focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20"
                                 placeholder="Contoh: 15082015" maxlength="8" pattern="\d{8}" inputmode="numeric">
                         </div>
@@ -86,12 +85,12 @@
 
             <div id="searchLoading" class="mt-4 hidden text-center">
                 <i class="fas fa-spinner fa-spin text-primary-600 text-xl"></i>
-                <p class="mt-1 text-sm text-gray-500">Mencari data...</p>
+                <p class="mt-1 text-sm text-gray-500">Memproses...</p>
             </div>
 
             <div id="errorMsg" class="mt-4 hidden rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-100">
                 <i class="fas fa-exclamation-circle mr-1"></i>
-                <span id="errorText">Data tidak ditemukan atau NISN/Tanggal Lahir salah.</span>
+                <span id="errorText">Data tidak ditemukan atau kombinasi salah.</span>
             </div>
 
             <div id="resultCard" class="mt-6 hidden">
@@ -100,33 +99,24 @@
                         <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                             <i class="fas fa-check-circle text-green-600 text-sm"></i>
                         </div>
-                        <span class="font-semibold">Data ditemukan!</span>
+                        <div>
+                            <span class="font-semibold">Data ditemukan</span>
+                            <p class="text-xs text-green-600 mt-0.5" id="dispNama"></p>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-4 overflow-hidden rounded-xl border border-gray-200 shadow-sm">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
-                        <tbody class="divide-y divide-gray-100">
-                            <tr class="bg-gray-50/50"><td class="whitespace-nowrap px-4 py-3.5 font-medium text-gray-500 w-1/3">Nama</td>
-                                <td class="px-4 py-3.5 text-gray-900 font-bold" id="dispNama">-</td></tr>
-                            <tr><td class="whitespace-nowrap px-4 py-3.5 font-medium text-gray-500" id="dispNisnLabel">NISN</td>
-                                <td class="px-4 py-3.5 text-gray-900 font-mono" id="dispNISN">-</td></tr>
-                            <tr class="bg-gray-50/50"><td class="whitespace-nowrap px-4 py-3.5 font-medium text-gray-500" id="dispNoPesertaLabel">Nomor Peserta</td>
-                                <td class="px-4 py-3.5 text-gray-900 font-mono" id="dispNoPeserta">-</td></tr>
-                        </tbody>
-                    </table>
-                </div>
                 <div class="mt-6 flex flex-col gap-3">
-                    <button id="downloadBtn"
+                    <button id="downloadBtn" disabled
                         class="flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:from-green-700 hover:to-emerald-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.98]">
-                        <i class="fas fa-download"></i> Download Hasil TKA
+                        <i class="fas fa-spinner fa-spin"></i> <span id="downloadBtnText">Memverifikasi...</span>
                     </button>
-                    <p class="text-xs text-center text-gray-400" id="tokenInfo">Tautan berlaku 60 detik setelah verifikasi</p>
+                    <p class="text-xs text-center text-gray-400" id="tokenCountdown"></p>
                 </div>
             </div>
 
-            <div id="downloadProgress" class="hidden mt-4 rounded-xl bg-blue-50 border border-blue-100 p-4 text-center">
-                <i class="fas fa-spinner fa-spin text-blue-600 text-lg"></i>
-                <p class="mt-1 text-sm text-blue-700">Menyiapkan unduhan...</p>
+            <div id="successMsg" class="hidden mt-4 rounded-xl bg-green-50 border border-green-200 p-4 text-sm text-green-700 text-center">
+                <i class="fas fa-check-circle mr-1"></i>
+                <span>PDF berhasil diunduh. Untuk mengunduh ulang, masukkan data kembali.</span>
             </div>
         </div>
 
@@ -138,175 +128,202 @@
 
     <script>
         // ===================================================================
-        // CONFIG
+        // MODULE STATE — NEVER persisted to DOM or storage
         // ===================================================================
-        const MAP_URL = './encrypted_map.json';
-        const INDEX_URL = './student_index.json';
-
-        let encryptedMap = null;
-        let studentIndex = null;
-        let currentDecrypted = null;   // { nama, nisn, fileId }
-        let downloadTokenTimer = null;
-        let downloadUrl = '';
-
-        const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni',
-                        'Juli','Agustus','September','Oktober','November','Desember'];
+        let _studentIndex = null;          // SHA256(NISN) → Nama
+        let _encryptedMap = null;          // SHA256(NISN) → { iv, ciphertext, tag }
+        let _downloadState = null;         // { fileId, expiresAt } — in memory only
+        let _countdownTimer = null;
 
         // ===================================================================
-        // RATE LIMITING
+        // RATE LIMIT (sessionStorage — cleared on tab close)
         // ===================================================================
-        const RL_KEY = 'tka_rate_limit';
+        const RL_KEY = 'tka_rl';
         const MAX_ATTEMPTS = 3;
         const LOCKOUT_SECS = 30;
 
-        function getRateLimit() {
+        function getRL() {
             try {
-                const raw = localStorage.getItem(RL_KEY);
+                const raw = sessionStorage.getItem(RL_KEY);
                 if (raw) return JSON.parse(raw);
-            } catch(e) {}
-            return { attempts: 0, lockUntil: 0 };
+            } catch (_) {}
+            return { fail: 0, until: 0 };
         }
 
-        function saveRateLimit(rl) {
-            try { localStorage.setItem(RL_KEY, JSON.stringify(rl)); } catch(e) {}
+        function saveRL(rl) {
+            try { sessionStorage.setItem(RL_KEY, JSON.stringify(rl)); } catch (_) {}
         }
 
-        function checkRateLimit() {
-            const rl = getRateLimit();
+        function checkRL() {
+            const rl = getRL();
             const now = Date.now();
-            if (rl.lockUntil > now) {
-                const remaining = Math.ceil((rl.lockUntil - now) / 1000);
-                return { blocked: true, remaining };
+            if (rl.until > now) {
+                const s = Math.ceil((rl.until - now) / 1000);
+                return { blocked: true, seconds: s };
+            }
+            if (rl.until > 0 && rl.until <= now) {
+                rl.fail = 0; rl.until = 0; saveRL(rl);
             }
             return { blocked: false };
         }
 
-        function recordAttempt(success) {
-            const rl = getRateLimit();
+        function recordFail() {
+            const rl = getRL();
             const now = Date.now();
-            // Clear lockout if expired
-            if (rl.lockUntil <= now) {
-                if (success) {
-                    rl.attempts = 0;
-                    saveRateLimit(rl);
-                    return;
-                }
-                rl.attempts++;
-                if (rl.attempts >= MAX_ATTEMPTS) {
-                    rl.lockUntil = now + LOCKOUT_SECS * 1000;
-                    rl.attempts = 0;
-                    // Show rate limit message
-                    document.getElementById('rateLimitMsg').classList.remove('hidden');
-                    document.getElementById('rateLimitText').textContent =
-                        'Terlalu banyak percobaan. Silakan coba lagi dalam ' + LOCKOUT_SECS + ' detik.';
-                    setTimeout(() => document.getElementById('rateLimitMsg').classList.add('hidden'), LOCKOUT_SECS * 1000);
-                }
-                saveRateLimit(rl);
+            if (rl.until > now) return;
+            rl.fail = (rl.fail || 0) + 1;
+            if (rl.fail >= MAX_ATTEMPTS) {
+                rl.until = now + LOCKOUT_SECS * 1000;
+                rl.fail = 0;
             }
+            saveRL(rl);
+            if (rl.until > 0) showRateLimit();
+        }
+
+        function recordSuccess() {
+            saveRL({ fail: 0, until: 0 });
+            document.getElementById('rateLimitBanner').classList.add('hidden');
+        }
+
+        function showRateLimit() {
+            const b = document.getElementById('rateLimitBanner');
+            const t = document.getElementById('rateLimitText');
+            b.classList.remove('hidden');
+            const tick = () => {
+                const rl = getRL();
+                const s = Math.ceil((rl.until - Date.now()) / 1000);
+                if (s <= 0) { b.classList.add('hidden'); return; }
+                t.textContent = 'Terlalu banyak percobaan. Coba lagi dalam ' + s + ' detik.';
+                setTimeout(tick, 1000);
+            };
+            tick();
         }
 
         // ===================================================================
         // CRYPTO — Web Crypto API (PBKDF2 + AES-256-GCM)
         // ===================================================================
         async function deriveKey(nisn, ddmmyyyy) {
-            const password = nisn + ':' + ddmmyyyy;
+            const pw = nisn + ':' + ddmmyyyy;
             const salt = new TextEncoder().encode('mumtaza-tka-2026');
-            const keyMaterial = await crypto.subtle.importKey(
-                'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']
-            );
+            const mat = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
             return crypto.subtle.deriveKey(
                 { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
-                keyMaterial,
-                { name: 'AES-GCM', length: 256 },
-                false,
-                ['decrypt']
+                mat, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
             );
         }
 
-        async function decryptStudentData(nisn, ddmmyyyy, encData) {
+        function b64raw(s) { return Uint8Array.from(atob(s), c => c.charCodeAt(0)); }
+
+        async function decryptEntry(nisn, ddmmyyyy, enc) {
             const key = await deriveKey(nisn, ddmmyyyy);
-            const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
-            const iv = b64(encData.iv);
-            const ct = b64(encData.ciphertext);
-            const tag = b64(encData.tag);
-            const combined = new Uint8Array(ct.length + tag.length);
-            combined.set(ct); combined.set(tag, ct.length);
-            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, combined);
-            return JSON.parse(new TextDecoder().decode(decrypted));
+            const iv = b64raw(enc.iv);
+            const ct = b64raw(enc.ciphertext);
+            const tag = b64raw(enc.tag);
+            const blob = new Uint8Array(ct.length + tag.length);
+            blob.set(ct); blob.set(tag, ct.length);
+            const dec = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, blob);
+            return JSON.parse(new TextDecoder().decode(dec));
         }
 
-        async function sha256Hex(str) {
-            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+        async function sha256hex(s) {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
             return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
         // ===================================================================
-        // LOAD DATA
+        // DATA LOADING
         // ===================================================================
         async function loadData() {
-            const loadingEl = document.getElementById('loadingData');
-            const errorEl = document.getElementById('loadError');
-            const searchCard = document.getElementById('searchCard');
+            const ld = document.getElementById('loadingData');
+            const er = document.getElementById('loadError');
+            const sc = document.getElementById('searchCard');
             try {
-                const [mapResp, idxResp] = await Promise.all([
-                    fetch(MAP_URL + '?v=' + Date.now()),
-                    fetch(INDEX_URL + '?v=' + Date.now()),
+                const [idxR, mapR] = await Promise.all([
+                    fetch('./student_index.json?v=' + Date.now()),
+                    fetch('./encrypted_map.json?v=' + Date.now()),
                 ]);
-                if (!mapResp.ok || !idxResp.ok) throw new Error('HTTP error');
-                encryptedMap = await mapResp.json();
-                studentIndex = await idxResp.json();
-                loadingEl.classList.add('hidden');
-                searchCard.classList.remove('hidden');
+                if (!idxR.ok || !mapR.ok) throw new Error('HTTP ' + idxR.status);
+                _studentIndex = await idxR.json();
+                _encryptedMap = await mapR.json();
+                ld.classList.add('hidden');
+                sc.classList.remove('hidden');
             } catch (e) {
                 console.warn('Load failed:', e);
-                loadingEl.classList.add('hidden');
-                errorEl.classList.remove('hidden');
+                ld.classList.add('hidden');
+                er.classList.remove('hidden');
             }
         }
 
         // ===================================================================
-        // FORMAT HELPERS
+        // TOKEN COUNTDOWN
         // ===================================================================
-        function formatDate(s) {
-            s = String(s);
-            if (s.length === 8 && /^\d{8}$/.test(s)) {
-                const d = s.slice(0,2), m = s.slice(2,4), y = s.slice(4);
-                return d + ' ' + (MONTHS[parseInt(m)-1] || m) + ' ' + y;
+        function startCountdown() {
+            if (_countdownTimer) clearInterval(_countdownTimer);
+            const el = document.getElementById('tokenCountdown');
+            const btn = document.getElementById('downloadBtn');
+            _countdownTimer = setInterval(() => {
+                if (!_downloadState) {
+                    el.textContent = '';
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-clock"></i> Sesi kedaluwarsa';
+                    clearInterval(_countdownTimer);
+                    _countdownTimer = null;
+                    return;
+                }
+                const s = Math.ceil((_downloadState.expiresAt - Date.now()) / 1000);
+                if (s <= 0) {
+                    _downloadState = null;
+                    el.textContent = 'Tautan kedaluwarsa. Cari ulang untuk mendapatkan tautan baru.';
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-clock"></i> Kedaluwarsa';
+                    clearInterval(_countdownTimer);
+                    _countdownTimer = null;
+                    return;
+                }
+                el.textContent = 'Link aktif: ' + s + ' detik';
+            }, 200);
+        }
+
+        // ===================================================================
+        // DOWNLOAD HANDLER — triggered ONLY on button click
+        // ===================================================================
+        document.getElementById('downloadBtn').addEventListener('click', function () {
+            if (!_downloadState || _downloadState.expiresAt <= Date.now()) {
+                _downloadState = null;
+                document.getElementById('tokenCountdown').textContent = 'Tautan kedaluwarsa. Cari ulang.';
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-clock"></i> Kedaluwarsa';
+                return;
             }
-            return s;
-        }
-
-        // ===================================================================
-        // DOWNLOAD TOKEN (60s expiry)
-        // ===================================================================
-        function clearDownloadToken() {
-            downloadUrl = '';
-            currentDecrypted = null;
-            document.getElementById('tokenInfo').textContent = 'Tautan kedaluwarsa. Silakan verifikasi ulang.';
-            document.getElementById('downloadBtn').disabled = true;
-            document.getElementById('downloadBtn').innerHTML = '<i class="fas fa-clock"></i> Verifikasi Ulang';
-        }
-
-        function startDownloadTimer() {
-            if (downloadTokenTimer) clearTimeout(downloadTokenTimer);
-            document.getElementById('tokenInfo').textContent = 'Tautan berlaku 60 detik setelah verifikasi';
-            downloadTokenTimer = setTimeout(clearDownloadToken, 60000);
-        }
+            const fid = _downloadState.fileId;
+            // Clear immediately — no second chance from this state
+            _downloadState = null;
+            if (_countdownTimer) { clearInterval(_countdownTimer); _countdownTimer = null; }
+            // Open download — never store href on an element
+            window.open('https://drive.google.com/uc?export=download&id=' + fid, '_blank');
+            // UI cleanup
+            document.getElementById('tokenCountdown').textContent = '';
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-check"></i> PDF diunduh';
+            document.getElementById('searchForm').reset();
+            document.getElementById('resultCard').classList.add('hidden');
+            document.getElementById('successMsg').classList.remove('hidden');
+            // Hide success message after 8s
+            setTimeout(() => document.getElementById('successMsg').classList.add('hidden'), 8000);
+        });
 
         // ===================================================================
         // SEARCH FORM
         // ===================================================================
-        document.getElementById('searchForm').addEventListener('submit', async function(e) {
+        document.getElementById('searchForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-            ['errorMsg','resultCard','downloadProgress'].forEach(id =>
+            ['errorMsg','resultCard','successMsg'].forEach(id =>
                 document.getElementById(id).classList.add('hidden'));
 
             // Check rate limit
-            const rl = checkRateLimit();
+            const rl = checkRL();
             if (rl.blocked) {
-                document.getElementById('rateLimitMsg').classList.remove('hidden');
-                document.getElementById('rateLimitText').textContent =
-                    'Terlalu banyak percobaan. Silakan coba lagi ' + rl.remaining + ' detik lagi.';
+                showRateLimit();
                 return;
             }
 
@@ -314,97 +331,92 @@
             const date = document.getElementById('date').value.trim();
             if (!nisn || !date) return;
 
-            document.getElementById('searchLoading').classList.remove('hidden');
-            document.getElementById('searchBtn').disabled = true;
+            const loading = document.getElementById('searchLoading');
+            const btn = document.getElementById('searchBtn');
+            loading.classList.remove('hidden');
+            btn.disabled = true;
 
-            // Small delay for UX
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, 400));
 
             try {
-                const nisnHash = await sha256Hex(nisn);
-                const encData = encryptedMap ? encryptedMap[nisnHash] : null;
+                // STEP 1 — Soft lookup via student_index
+                const hash = await sha256hex(nisn);
+                const studentName = _studentIndex ? _studentIndex[hash] : null;
 
-                if (!encData) {
-                    recordAttempt(false);
-                    document.getElementById('searchLoading').classList.add('hidden');
-                    document.getElementById('searchBtn').disabled = false;
-                    document.getElementById('errorText').textContent = 'Data tidak ditemukan. Periksa kembali NISN dan Tanggal Lahir.';
+                if (!studentName) {
+                    recordFail();
+                    loading.classList.add('hidden');
+                    btn.disabled = false;
+                    document.getElementById('errorText').textContent = 'Data tidak ditemukan atau kombinasi salah.';
                     document.getElementById('errorMsg').classList.remove('hidden');
                     return;
                 }
 
-                // Try to decrypt — will throw if wrong NISN/date
+                // STEP 2 — Check encrypted map exists
+                const enc = _encryptedMap ? _encryptedMap[hash] : null;
+                if (!enc) {
+                    recordFail();
+                    loading.classList.add('hidden');
+                    btn.disabled = false;
+                    document.getElementById('errorText').textContent = 'Data tidak ditemukan atau kombinasi salah.';
+                    document.getElementById('errorMsg').classList.remove('hidden');
+                    return;
+                }
+
+                // STEP 3 — Attempt decryption (will throw if wrong creds)
                 let decrypted;
                 try {
-                    decrypted = await decryptStudentData(nisn, date, encData);
-                } catch (err) {
-                    recordAttempt(false);
-                    document.getElementById('searchLoading').classList.add('hidden');
-                    document.getElementById('searchBtn').disabled = false;
-                    document.getElementById('errorText').textContent = 'NISN atau Tanggal Lahir tidak cocok.';
+                    decrypted = await decryptEntry(nisn, date, enc);
+                } catch (_) {
+                    recordFail();
+                    loading.classList.add('hidden');
+                    btn.disabled = false;
+                    document.getElementById('errorText').textContent = 'Data tidak ditemukan atau kombinasi salah.';
                     document.getElementById('errorMsg').classList.remove('hidden');
                     return;
                 }
 
-                // Success — reset attempts
-                recordAttempt(true);
-                currentDecrypted = { ...decrypted, nisn };
-                document.getElementById('searchLoading').classList.add('hidden');
-                document.getElementById('searchBtn').disabled = false;
+                // STEP 4 — Success
+                recordSuccess();
+                loading.classList.add('hidden');
 
-                // Show student info
-                document.getElementById('dispNama').textContent = decrypted.nama || '-';
-                document.getElementById('dispNISN').textContent = nisn;
-                document.getElementById('dispNoPeserta').textContent = decrypted.nomor_peserta || '-';
+                // Show student name (already from index, but confirm from decrypted payload)
+                document.getElementById('dispNama').textContent = decrypted.nama || studentName;
                 document.getElementById('resultCard').classList.remove('hidden');
 
-                // Prepare download
-                downloadUrl = 'https://drive.google.com/uc?export=download&id=' + decrypted.fileId;
-                document.getElementById('downloadBtn').disabled = false;
-                document.getElementById('downloadBtn').innerHTML = '<i class="fas fa-download"></i> Download Hasil TKA';
-                document.getElementById('tokenInfo').textContent = 'Tautan berlaku 60 detik';
-                startDownloadTimer();
+                // Prepare time-limited download token
+                _downloadState = { fileId: decrypted.fileId, expiresAt: Date.now() + 60000 };
+
+                const dBtn = document.getElementById('downloadBtn');
+                dBtn.disabled = false;
+                dBtn.innerHTML = '<i class="fas fa-download"></i> <span id="downloadBtnText">Download PDF</span>';
+
+                startCountdown();
+                btn.disabled = false;
 
             } catch (err) {
                 console.error(err);
-                document.getElementById('searchLoading').classList.add('hidden');
-                document.getElementById('searchBtn').disabled = false;
+                loading.classList.add('hidden');
+                btn.disabled = false;
                 document.getElementById('errorText').textContent = 'Terjadi kesalahan. Silakan coba lagi.';
                 document.getElementById('errorMsg').classList.remove('hidden');
             }
         });
 
         // ===================================================================
-        // DOWNLOAD BUTTON
-        // ===================================================================
-        document.getElementById('downloadBtn').addEventListener('click', function() {
-            if (!downloadUrl) {
-                clearDownloadToken();
-                return;
-            }
-            // Open in new tab / trigger download
-            window.open(downloadUrl, '_blank');
-            document.getElementById('tokenInfo').textContent = 'Unduhan dimulai. Tautan akan kedaluwarsa dalam 60 detik.';
-        });
-
-        // ===================================================================
-        // SETTINGS (optional — update labels from localStorage cache)
+        // SETTINGS (labels from localStorage cache — optional)
         // ===================================================================
         try {
             const raw = localStorage.getItem('tka_settings_cache');
             if (raw) {
                 const s = JSON.parse(raw);
-                const g = id => document.getElementById(id);
-                if (g('lblSubtitle') && s.app_subtitle) g('lblSubtitle').textContent = s.app_subtitle;
-                if (g('lblSearchTitle') && s.app_acronym) g('lblSearchTitle').textContent = 'Cari Hasil ' + s.app_acronym;
-                if (g('lblSearchDesc') && s.nisn_label) g('lblSearchDesc').textContent = 'Masukkan ' + s.nisn_label + ' dan ' + (s.ttl_label || 'Tanggal Lahir') + ' untuk melihat hasil';
-                if (g('lblNisn') && s.nisn_label) g('lblNisn').textContent = s.nisn_label;
-                if (g('lblTtl') && s.ttl_label) g('lblTtl').textContent = s.ttl_label + ' (ddmmyyyy)';
-                if (g('dispNisnLabel') && s.nisn_label) g('dispNisnLabel').textContent = s.nisn_label;
-                if (g('dispNoPesertaLabel') && s.no_peserta_label) g('dispNoPesertaLabel').textContent = s.no_peserta_label;
-                document.title = 'Hasil ' + s.app_acronym + ' - SMP Mumtaza';
+                const $ = id => document.getElementById(id);
+                const title = document.querySelector('title');
+                if (title && s.app_acronym) title.textContent = 'Hasil ' + s.app_acronym + ' - SMP Mumtaza';
+                const sub = $('lblSubtitle');
+                if (!sub) {} else if (s.app_subtitle) sub.textContent = s.app_subtitle;
             }
-        } catch(e) {}
+        } catch (_) {}
 
         // ===================================================================
         // INIT
