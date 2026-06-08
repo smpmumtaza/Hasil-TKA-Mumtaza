@@ -1,0 +1,9 @@
+# GitHub Pages does NOT process this file natively,
+# but it is kept for compatibility with Cloudflare Pages / Netlify.
+# The CSP and security headers are also set via <meta> tags in index.html.
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: geolocation=(), microphone=(), camera=()
