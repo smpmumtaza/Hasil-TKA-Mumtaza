@@ -40,15 +40,22 @@ a { color:#126047 }
 <header><img src="./images/logo.png" alt="">SMP Mumtaza Islamic School</header>
 <section>
 <h1>Hasil TKA</h1>
-<p>Gunakan nama lengkap atau NISN, tanggal lahir, dan kode pribadi dari sekolah.</p>
-<form id="lookup">
-<label for="identity">Nama lengkap atau NISN</label>
+<p>Portal nilai resmi SMP Mumtaza. Setelah verifikasi, Anda dapat melihat nilai dan predikat Bahasa Indonesia serta Matematika, lalu membuka PDF hasil TKA.</p>
+<div id="guide" hidden>
+  <h2>Cara melihat hasil</h2>
+  <ol>
+    <li>Buka tautan pribadi Hasil TKA yang diberikan sekolah.</li>
+    <li>Isi nama lengkap dan tanggal lahir sesuai data sekolah, lalu klik <strong>Lihat hasil</strong>.</li>
+  </ol>
+  <p>Jika belum menerima tautan, hubungi wali kelas. Simpan tautan untuk penggunaan pribadi.</p>
+</div>
+<form id="lookup" hidden>
+<label for="identity">Nama lengkap siswa</label>
 <input id="identity" maxlength="200" autocomplete="off" required>
-<label for="birth">Tanggal lahir</label>
-<input id="birth" type="date" autocomplete="off" required>
-<label for="code">Kode pribadi Hasil TKA</label>
-<input id="code" type="password" minlength="32" maxlength="32" pattern="[A-Fa-f0-9]{32}" autocomplete="off" required>
-<button>Cari hasil</button>
+<label for="birth">Tanggal lahir siswa</label>
+<input id="birth" type="date" autocomplete="off" aria-describedby="birth-help" required>
+<p id="birth-help">Gunakan tanggal lahir yang tercatat di sekolah.</p>
+<button>Lihat hasil</button>
 <p class="status" id="lookup-status" role="status"></p>
 </form>
 <div id="result" hidden>
@@ -73,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     auth: { persistSession: false, detectSessionInUrl: false }
   });
   const number = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
+  let access = '';
   let verified = null;
   let revision = 0;
 
@@ -88,7 +96,19 @@ document.addEventListener('DOMContentLoaded', () => {
     el('lookup-status').textContent = '';
   }
 
-  for (const id of ['identity', 'birth', 'code']) el(id).addEventListener('input', clearResult);
+  function showAccess() {
+    clearResult();
+    el('lookup').reset();
+    const value = new URLSearchParams(location.hash.slice(1)).get('akses') || '';
+    access = /^[a-f0-9]{32}$/.test(value) ? value : '';
+    el('guide').hidden = Boolean(access);
+    el('lookup').hidden = !access;
+  }
+
+  for (const id of ['identity', 'birth']) el(id).addEventListener('input', clearResult);
+  addEventListener('hashchange', showAccess);
+  addEventListener('pageshow', showAccess);
+  showAccess();
   addEventListener('pagehide', () => { clearResult(); el('lookup').reset(); });
 
   el('lookup').addEventListener('submit', async event => {
@@ -99,14 +119,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = el('lookup').querySelector('button');
     status.textContent = 'Memeriksa hasil…';
     button.disabled = true;
-    const criteria = {
-      p_identity: el('identity').value.trim(),
-      p_birth: el('birth').value,
-      p_code: el('code').value.toLowerCase(),
-    };
-    el('code').value = '';
+    const criteria = { p_identity: el('identity').value.trim(), p_birth: el('birth').value, p_code: access };
     try {
-      if (!db) throw Error();
+      if (!db || !access) throw Error();
       const { data, error } = await db.rpc('find_tka_official', criteria);
       if (current !== revision) return;
       if (error) {
@@ -114,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       if (!data?.length) {
-        status.textContent = 'Hasil tidak ditemukan. Periksa kembali data dan kode pribadi.';
+        status.textContent = 'Hasil tidak ditemukan. Periksa nama lengkap, tanggal lahir, dan tautan dari sekolah.';
         return;
       }
       const row = data[0];
