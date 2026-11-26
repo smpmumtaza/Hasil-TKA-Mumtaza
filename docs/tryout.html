@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.sheetjs.com; style-src 'self' 'unsafe-inline'; connect-src https://skiraowhzwtdcidnhply.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<title>Hasil Try Out TKA · SMP Mumtaza</title>
+<style>
+:root { color-scheme:light; font:16px/1.55 system-ui,sans-serif; color:#152e29; background:#edf5f1 }
+* { box-sizing:border-box }
+body { margin:0 }
+main { max-width:720px; margin:auto; padding:36px 18px }
+header { display:flex; align-items:center; gap:12px; margin-bottom:26px; font-weight:700 }
+header img { width:44px; height:44px; object-fit:contain }
+section { background:#fff; border:1px solid #cfdfd8; border-radius:20px; padding:clamp(20px,5vw,36px); box-shadow:0 14px 42px #163d2a0c }
+h1 { font-size:clamp(27px,6vw,40px); line-height:1.12; margin:6px 0 12px; letter-spacing:-.035em }
+h2 { margin:0 }
+p { margin:0 0 18px }
+label { display:block; margin:16px 0 5px; font-weight:650 }
+input,button { font:inherit; border-radius:10px; width:100%; padding:11px 13px }
+input { border:1px solid #9fb5aa; background:#fafdfb; color:inherit }
+button { border:0; background:#126047; color:white; font-weight:700; margin-top:18px; cursor:pointer }
+button:disabled { opacity:.6; cursor:wait }
+:focus-visible { outline:3px solid #19876b; outline-offset:3px }
+.status { margin:15px 0 0; color:#883423 }
+.status:empty { display:none }
+#result { margin-top:20px }
+dl { display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:10px; margin-bottom:0 }
+dl div { padding:12px; background:#eef7f2; border-radius:10px }
+dt { font-size:.86rem }
+dd { margin:0; font-size:1.25rem; font-weight:750 }
+footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; margin-top:20px; font-size:.9rem }
+a { color:#126047 }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js" defer></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
+</head>
+<body>
+<main>
+<header><img src="./images/logo.png" alt="">SMP Mumtaza Islamic School</header>
+<section id="student">
+<h1>Hasil Try Out TKA</h1>
+<p>Masukkan nama lengkap atau NISN dan kode pribadi dari sekolah.</p>
+<form id="lookup">
+<label for="identity">Nama lengkap atau NISN</label>
+<input id="identity" maxlength="200" autocomplete="off" required>
+<label for="code">Kode akses pribadi</label>
+<input id="code" type="password" minlength="32" maxlength="32" pattern="[A-Fa-f0-9]{32}" autocomplete="off" required>
+<button>Cari hasil</button>
+<p class="status" id="lookupStatus" role="status"></p>
+</form>
+<div id="result" aria-live="polite" hidden></div>
+</section>
+<section id="school" hidden>
+<h1>Unggah hasil Try Out</h1>
+<form id="login">
+<label for="email">Email admin sekolah</label>
+<input id="email" type="email" autocomplete="username" required>
+<label for="password">Kata sandi</label>
+<input id="password" type="password" autocomplete="current-password" required>
+<button>Masuk</button>
+</form>
+<form id="publish" hidden>
+<p>Unggah satu file XLSX. Versi dengan kolom NISN mendukung pencarian lewat nama dan NISN.</p>
+<label for="file">File hasil Try Out</label>
+<input id="file" type="file" accept=".xlsx" required>
+<button>Terbitkan hasil</button>
+<p>Unggahan mengganti hasil Try Out aktif dan membuat kode pribadi baru. Simpan daftar kode dan bagikan masing-masing kode secara pribadi.</p>
+<button type="button" id="download" hidden>Unduh daftar kode akses</button>
+<button type="button" id="logout">Keluar</button>
+</form>
+<p class="status" id="adminStatus" role="status"></p>
+</section>
+<footer><a href="./">Halaman utama TKA</a><a id="switch" href="#admin">Admin Try Out</a></footer>
+</main>
+<script>
+const SUPABASE_URL = 'https://skiraowhzwtdcidnhply.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraXJhb3doend0ZGNpZG5ocGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODMxMDIsImV4cCI6MjA5NTQ1OTEwMn0.pWBTxsjOcHG09f_R2DTfWYnHqiDXoenp71JFn32LALA';
+
+function parseTryout(rows) {
+  const aliases = {
+    nama: ['nama siswa', 'nama lengkap', 'nama'],
+    nisn: ['nisn'],
+    kelas: ['kelas'],
+    bahasa_indonesia: ['bahasa indonesia', 'bahasa indonesia score'],
+    matematika: ['matematika', 'matematika score'],
+    rata_rata: ['nilai rata rata mapel wajib', 'rata rata'],
+    peringkat_sekolah: ['peringkat sekolah'],
+    peringkat_total: ['peringkat seluruh peserta']
+  };
+  const normalized = value => String(value ?? '').trim().toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const headerRow = rows.findIndex(row => {
+    const keys = row.map(normalized);
+    return aliases.nama.some(key => keys.includes(key))
+      && ['matematika', 'bahasa_indonesia'].every(field => aliases[field].some(key => keys.includes(key)));
+  });
+  if (headerRow === -1) throw Error('Kolom Nama Siswa, Bahasa Indonesia, dan Matematika diperlukan.');
+  const keys = rows[headerRow].map(normalized);
+  const cols = Object.fromEntries(Object.entries(aliases).map(([field, names]) =>
+    [field, keys.findIndex(key => names.includes(key))]));
+  const seen = new Set();
+  const entries = [];
+  for (const [offset, row] of rows.slice(headerRow + 1).entries()) {
+    const get = field => row[cols[field]];
+    if (Object.keys(cols).every(field => String(get(field) ?? '').trim() === '')) continue;
+    const line = headerRow + offset + 2;
+    const fail = field => { throw Error('Baris ' + line + ' memiliki ' + field + ' yang tidak valid.'); };
+    const nama = String(get('nama') ?? '').trim().replace(/\s+/g, ' ');
+    const kelas = String(get('kelas') ?? '').trim() || null;
+    if (!nama || nama.length > 200) fail('nama siswa');
+    if (kelas && kelas.length > 40) fail('kelas');
+    const rawNisn = String(get('nisn') ?? '').trim();
+    if (rawNisn && !/^\d{1,10}$/.test(rawNisn)) fail('NISN');
+    const nisn = rawNisn ? rawNisn.padStart(10, '0') : null;
+    if (nisn && seen.has(nisn)) fail('NISN duplikat');
+    if (nisn) seen.add(nisn);
+    const numeric = (field, optional = false, rank = false) => {
+      const value = String(get(field) ?? '').trim().replace(',', '.');
+      if (!value && optional) return null;
+      const number = Number(value);
+      if (!/^\d+(\.\d+)?$/.test(value) || !Number.isFinite(number)
+          || (rank ? !Number.isInteger(number) || number < 1 || number > 2147483647 : number > 100)) fail(field.replaceAll('_', ' '));
+      return number;
+    };
+    const bahasa_indonesia = numeric('bahasa_indonesia');
+    const matematika = numeric('matematika');
+    entries.push({
+      nama, nisn, kelas, bahasa_indonesia, matematika,
+      rata_rata: numeric('rata_rata', true) ?? (bahasa_indonesia + matematika) / 2,
+      peringkat_sekolah: numeric('peringkat_sekolah', true, true),
+      peringkat_total: numeric('peringkat_total', true, true)
+    });
+  }
+  if (!entries.length || entries.length > 2000) throw Error('File harus berisi 1–2.000 siswa.');
+  return entries;
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const el = id => document.getElementById(id);
+  const db = window.supabase?.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { storageKey: 'mumtaza-tryout-auth', persistSession: false }
+  });
+  let codes = null;
+  const run = (id, status, handler) => el(id).addEventListener('submit', async event => {
+    event.preventDefault();
+    const button = event.submitter || el(id).querySelector('button');
+    button.disabled = true;
+    el(status).textContent = '';
+    try {
+      if (!db) throw Error('Layanan belum dapat dimuat. Muat ulang halaman.');
+      await handler();
+    } catch (error) {
+      el(status).textContent = error.code === 'PGRST202' ? 'Layanan Try Out belum diaktifkan oleh sekolah.' : error.message || 'Terjadi kesalahan.';
+    } finally {
+      button.disabled = false;
+    }
+  });
+
+  function showPage() {
+    const admin = location.hash === '#admin';
+    el('student').hidden = admin;
+    el('school').hidden = !admin;
+    el('switch').href = admin ? '#siswa' : '#admin';
+    el('switch').textContent = admin ? 'Pencarian siswa' : 'Admin Try Out';
+    el('result').hidden = true;
+    el('result').replaceChildren();
+    el('lookup').reset();
+    el('lookupStatus').textContent = '';
+  }
+
+  function showSession(session) {
+    const admin = session?.user.app_metadata.tka_admin === true || session?.user.app_metadata.tka_admin === 'true';
+    el('login').hidden = admin;
+    el('publish').hidden = !admin;
+    if (!admin) {
+      codes = null;
+      el('publish').reset();
+      el('download').hidden = true;
+    }
+  }
+
+  run('lookup', 'lookupStatus', async () => {
+    el('result').hidden = true;
+    el('result').replaceChildren();
+    const code = el('code').value.toLowerCase();
+    el('code').value = '';
+    const { data, error } = await db.rpc('find_tka_tryout', {
+      p_identity: el('identity').value.trim(), p_code: code
+    });
+    if (error) throw error;
+    if (!data.length) throw Error('Hasil tidak ditemukan. Periksa nama lengkap atau NISN dan kode pribadi.');
+    if (el('student').hidden) return;
+    const row = data[0];
+    const title = document.createElement('h2');
+    title.textContent = row.kelas ? row.nama + ' · ' + row.kelas : row.nama;
+    const scores = document.createElement('dl');
+    const format = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
+    for (const [label, value] of [
+      ['Bahasa Indonesia', row.bahasa_indonesia], ['Matematika', row.matematika], ['Rata-rata', row.rata_rata],
+      ['Peringkat sekolah', row.peringkat_sekolah], ['Peringkat seluruh peserta', row.peringkat_total]
+    ]) {
+      if (value == null) continue;
+      const cell = document.createElement('div');
+      const name = document.createElement('dt');
+      const number = document.createElement('dd');
+      name.textContent = label;
+      number.textContent = format.format(value);
+      cell.append(name, number);
+      scores.append(cell);
+    }
+    el('result').append(title, scores);
+    el('result').hidden = false;
+  });
+
+  run('login', 'adminStatus', async () => {
+    const { data, error } = await db.auth.signInWithPassword({
+      email: el('email').value.trim(), password: el('password').value
+    });
+    el('password').value = '';
+    if (error) throw error;
+    showSession(data.session);
+    if (el('publish').hidden) {
+      await db.auth.signOut({ scope: 'local' });
+      throw Error('Akun ini belum memiliki akses admin Try Out.');
+    }
+  });
+
+  run('publish', 'adminStatus', async () => {
+    const file = el('file').files[0];
+    if (!file || !/\.xlsx$/i.test(file.name) || file.size > 10 * 1024 * 1024) throw Error('Pilih file XLSX berukuran maksimal 10 MB.');
+    if (!window.XLSX) throw Error('Pembaca XLSX gagal dimuat. Muat ulang halaman.');
+    const workbook = XLSX.read(await file.arrayBuffer());
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = parseTryout(XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null, blankrows: true }));
+    const withoutNisn = rows.filter(row => !row.nisn).length;
+    const note = withoutNisn ? ' ' + withoutNisn + ' siswa hanya bisa mencari lewat nama.' : '';
+    if (!confirm('Terbitkan hasil untuk ' + rows.length + ' siswa? Kode sebelumnya akan kedaluwarsa.' + note)) return;
+    const { data, error } = await db.rpc('publish_tka_tryout', { p_rows: rows });
+    if (error) throw error;
+    codes = data;
+    el('download').hidden = false;
+    el('file').value = '';
+    el('adminStatus').textContent = rows.length + ' hasil berhasil diterbitkan. Unduh daftar kode akses sekarang.';
+  });
+
+  el('download').addEventListener('click', () => {
+    if (!codes) return;
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(codes.map(row => ({
+      'Nama siswa': row.nama, NISN: row.nisn ?? '', Kelas: row.kelas ?? '', 'Kode pribadi': row.kode
+    }))), 'Kode akses');
+    XLSX.writeFile(workbook, 'Kode_Akses_Tryout_TKA.xlsx');
+  });
+
+  el('logout').addEventListener('click', async () => {
+    await db.auth.signOut({ scope: 'local' });
+    showSession(null);
+    el('adminStatus').textContent = '';
+  });
+
+  addEventListener('hashchange', showPage);
+  showPage();
+  db?.auth.onAuthStateChange((_event, session) => showSession(session));
+});
+</script>
+</body>
+</html>
