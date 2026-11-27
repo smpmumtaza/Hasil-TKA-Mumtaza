@@ -34,6 +34,11 @@ footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; 
 a { color:#126047 }
 .pdf-link { display:inline-block; margin-top:18px; padding:10px 16px; border-radius:10px; background:#126047; color:#fff; font-weight:700; text-decoration:none }
 .pdf-note { margin:16px 0 0 }
+.upload-progress[hidden] { display:none }
+.upload-progress { display:flex; align-items:center; gap:10px; margin-top:14px }
+.spinner { width:18px; height:18px; border:2px solid #bacfc6; border-top-color:#126047; border-radius:50%; animation:spin .8s linear infinite; flex:none }
+@keyframes spin { to { transform:rotate(360deg) } }
+@media (prefers-reduced-motion:reduce) { .spinner { animation:none } }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js" defer></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -66,6 +71,8 @@ a { color:#126047 }
 </form>
 <form id="publish" hidden>
 <p>Unggah satu file XLSX. Gunakan versi lengkap dengan kolom TTL atau Tanggal Lahir.</p>
+<button id="downloadTemplate" type="button">Unduh template XLSX</button>
+<p>Isi lembar <strong>Hasil Try Out</strong>. Gunakan format DD/MM/YYYY untuk TTL dan pertahankan judul kolom.</p>
 <label for="file">File hasil Try Out</label>
 <input id="file" type="file" accept=".xlsx" required>
 <button>Terbitkan hasil</button>
@@ -86,6 +93,7 @@ a { color:#126047 }
 <p class="status" id="passwordStatus" role="status"></p>
 </form>
 </details>
+<div class="upload-progress" id="uploadProgress" role="status" hidden><span class="spinner" aria-hidden="true"></span><span id="uploadStage"></span></div>
 <p class="status" id="adminStatus" role="status"></p>
 </section>
 <footer><a href="./">Halaman utama TKA</a><a id="switch" href="#admin">Admin Try Out</a></footer>
@@ -309,17 +317,47 @@ document.addEventListener('DOMContentLoaded', () => {
     el('passwordStatus').textContent = 'Kata sandi berhasil diubah.';
   });
 
+  el('downloadTemplate').addEventListener('click', () => {
+    if (!window.XLSX) {
+      el('adminStatus').textContent = 'Pembuat template XLSX gagal dimuat. Muat ulang halaman.';
+      return;
+    }
+    const workbook = XLSX.utils.book_new();
+    const headers = ['Peringkat Sekolah', 'Nama Siswa', 'Kelas', 'Nilai Rata - Rata Mapel Wajib',
+      'Bahasa Indonesia', 'Matematika', 'TTL', 'NISN'];
+    const sheet = XLSX.utils.aoa_to_sheet([headers]);
+    sheet['!cols'] = [19, 34, 12, 34, 20, 16, 17, 17].map(wch => ({ wch }));
+    XLSX.utils.book_append_sheet(workbook, sheet, 'Hasil Try Out');
+    XLSX.writeFile(workbook, 'Template_Hasil_Try_Out_TKA.xlsx');
+  });
+
+  const setUploadStage = stage => {
+    el('uploadStage').textContent = stage;
+    el('uploadProgress').hidden = !stage;
+  };
+
   run('publish', 'adminStatus', async () => {
     const file = el('file').files[0];
     if (!file || !/\.xlsx$/i.test(file.name) || file.size > 10 * 1024 * 1024) throw Error('Pilih file XLSX berukuran maksimal 10 MB.');
     if (!window.XLSX) throw Error('Pembaca XLSX gagal dimuat. Muat ulang halaman.');
-    const workbook = XLSX.read(await file.arrayBuffer());
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = parseTryout(XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null, blankrows: true }));
+    let rows;
+    setUploadStage('Memeriksa isi XLSX…');
+    try {
+      const workbook = XLSX.read(await file.arrayBuffer());
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      rows = parseTryout(XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null, blankrows: true }));
+    } finally {
+      setUploadStage('');
+    }
     if (!confirm('Terbitkan hasil untuk ' + rows.length + ' siswa? Tautan sebelumnya akan kedaluwarsa.')) return;
-    const { data, error } = await db.rpc('publish_tka_tryout_links', { p_rows: rows });
-    if (error) throw error;
-    codes = data;
+    setUploadStage('Menerbitkan hasil untuk ' + rows.length + ' siswa…');
+    try {
+      const { data, error } = await db.rpc('publish_tka_tryout_links', { p_rows: rows });
+      if (error) throw error;
+      codes = data;
+    } finally {
+      setUploadStage('');
+    }
     el('download').hidden = false;
     el('file').value = '';
     el('adminStatus').textContent = rows.length + ' hasil berhasil diterbitkan. Unduh daftar tautan siswa sekarang.';
