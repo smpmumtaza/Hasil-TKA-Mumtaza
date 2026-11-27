@@ -32,6 +32,8 @@ dt { font-size:.86rem }
 dd { margin:0; font-size:1.25rem; font-weight:750 }
 footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; margin-top:20px; font-size:.9rem }
 a { color:#126047 }
+.pdf-link { display:inline-block; margin-top:18px; padding:10px 16px; border-radius:10px; background:#126047; color:#fff; font-weight:700; text-decoration:none }
+.pdf-note { margin:16px 0 0 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js" defer></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" defer></script>
@@ -235,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const code = linkCode();
     const criteria = { p_identity: el('identity').value.trim(), p_birth: birth };
     if (code) criteria.p_code = code;
-    const { data, error } = await db.rpc(code ? 'find_tka_tryout_link' : 'find_tka_tryout_by_birth', criteria);
+    const { data, error } = await db.rpc('find_tka_tryout_with_pdf', criteria);
     if (current !== revision) return;
     if (error) throw error;
     if (!data.length) throw Error('Hasil tidak ditemukan. Periksa tanggal lahir. Jika nama depan belum berhasil, gunakan nama lengkap.');
@@ -258,6 +260,20 @@ document.addEventListener('DOMContentLoaded', () => {
       scores.append(cell);
     }
     el('result').append(title, scores);
+    if (/^[A-Za-z0-9_-]{10,200}$/.test(row.drive_file_id || '')) {
+      const pdf = document.createElement('a');
+      pdf.className = 'pdf-link';
+      pdf.href = 'https://drive.google.com/uc?export=download&id=' + row.drive_file_id;
+      pdf.target = '_blank';
+      pdf.rel = 'noopener noreferrer';
+      pdf.textContent = 'Unduh PDF';
+      el('result').append(pdf);
+    } else {
+      const note = document.createElement('p');
+      note.className = 'pdf-note';
+      note.textContent = 'PDF untuk hasil ini belum tersedia.';
+      el('result').append(note);
+    }
     el('result').hidden = false;
   });
 
