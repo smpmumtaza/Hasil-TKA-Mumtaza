@@ -43,7 +43,7 @@ a { color:#126047 }
 <header><img src="./images/logo.png" alt="">SMP Mumtaza Islamic School</header>
 <section id="student">
 <h1>Hasil Try Out TKA</h1>
-<p>Lihat nilai Bahasa Indonesia, Matematika, rata-rata, dan peringkat Try Out.</p>
+<p>Lihat nilai Bahasa Indonesia, Matematika, rata-rata, dan peringkat sekolah.</p>
 <form id="lookup">
 <label for="identity">Nama depan atau nama lengkap</label>
 <input id="identity" maxlength="200" autocomplete="off" required>
@@ -248,7 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const format = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
     for (const [label, value] of [
       ['Bahasa Indonesia', row.bahasa_indonesia], ['Matematika', row.matematika], ['Rata-rata', row.rata_rata],
-      ['Peringkat sekolah', row.peringkat_sekolah], ['Peringkat seluruh peserta', row.peringkat_total]
+      ['Peringkat sekolah', row.peringkat_sekolah]
     ]) {
       if (value == null) continue;
       const cell = document.createElement('div');
