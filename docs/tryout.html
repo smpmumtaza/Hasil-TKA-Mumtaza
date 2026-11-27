@@ -77,6 +77,19 @@ a { color:#126047 }
 <button type="button" id="download" hidden>Unduh daftar tautan siswa</button>
 <button type="button" id="logout">Keluar</button>
 </form>
+<details id="passwordSettings" hidden>
+<summary>Ganti kata sandi</summary>
+<form id="changePassword">
+<label for="currentPassword">Kata sandi saat ini</label>
+<input id="currentPassword" type="password" autocomplete="current-password" required>
+<label for="newPassword">Kata sandi baru</label>
+<input id="newPassword" type="password" autocomplete="new-password" minlength="12" required>
+<label for="confirmPassword">Ulangi kata sandi baru</label>
+<input id="confirmPassword" type="password" autocomplete="new-password" minlength="12" required>
+<button>Simpan kata sandi baru</button>
+<p class="status" id="passwordStatus" role="status"></p>
+</form>
+</details>
 <p class="status" id="adminStatus" role="status"></p>
 </section>
 <footer><a href="./">Halaman utama TKA</a><a id="switch" href="#admin">Admin Try Out</a></footer>
@@ -203,7 +216,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const admin = session?.user.app_metadata.tka_admin === true || session?.user.app_metadata.tka_admin === 'true';
     el('login').hidden = admin;
     el('publish').hidden = !admin;
+    el('passwordSettings').hidden = !admin;
     if (!admin) {
+      el('passwordSettings').open = false;
+      el('changePassword').reset();
+      el('passwordStatus').textContent = '';
       codes = null;
       el('publish').reset();
       el('download').hidden = true;
@@ -263,6 +280,25 @@ document.addEventListener('DOMContentLoaded', () => {
       await db.auth.signOut({ scope: 'local' });
       throw Error('Akun ini belum memiliki akses admin Try Out.');
     }
+  });
+
+  run('changePassword', 'passwordStatus', async () => {
+    const current = el('currentPassword').value;
+    const next = el('newPassword').value;
+    const confirmation = el('confirmPassword').value;
+    el('changePassword').reset();
+    if (next.length < 12) throw Error('Kata sandi baru minimal 12 karakter.');
+    if (next !== confirmation) throw Error('Ulangan kata sandi baru tidak cocok.');
+    if (current === next) throw Error('Gunakan kata sandi yang berbeda.');
+    const { data: { session } } = await db.auth.getSession();
+    if (!session?.user.email || String(session.user.app_metadata.tka_admin) !== 'true') {
+      throw Error('Masuk kembali dengan akun admin.');
+    }
+    const { error: authError } = await db.auth.signInWithPassword({ email: session.user.email, password: current });
+    if (authError) throw Error('Kata sandi saat ini salah atau login sementara tidak tersedia.');
+    const { error } = await db.auth.updateUser({ password: next });
+    if (error) throw Error('Kata sandi belum berubah. ' + error.message);
+    el('passwordStatus').textContent = 'Kata sandi berhasil diubah.';
   });
 
   run('publish', 'adminStatus', async () => {
