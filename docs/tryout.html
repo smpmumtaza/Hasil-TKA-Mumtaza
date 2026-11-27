@@ -42,13 +42,7 @@ a { color:#126047 }
 <section id="student">
 <h1>Hasil Try Out TKA</h1>
 <p>Lihat nilai Bahasa Indonesia, Matematika, rata-rata, dan peringkat Try Out.</p>
-<div id="studentGuide" hidden>
-<h2>Cara melihat hasil</h2>
-<ol><li>Buka tautan Try Out pribadi dari wali kelas.</li>
-<li>Isi nama depan atau nama lengkap dan tanggal lahir, lalu tekan <strong>Lihat hasil</strong>.</li></ol>
-<p>Jika belum mendapat tautan, hubungi wali kelas. Simpan tautan untuk penggunaan pribadi.</p>
-</div>
-<form id="lookup" hidden>
+<form id="lookup">
 <label for="identity">Nama depan atau nama lengkap</label>
 <input id="identity" maxlength="200" autocomplete="off" required>
 <label for="birth">Tanggal lahir</label>
@@ -73,7 +67,7 @@ a { color:#126047 }
 <label for="file">File hasil Try Out</label>
 <input id="file" type="file" accept=".xlsx" required>
 <button>Terbitkan hasil</button>
-<p>Unggahan mengganti hasil Try Out aktif dan membuat tautan pribadi baru. Bagikan satu tautan kepada masing-masing siswa secara pribadi.</p>
+<p>Unggahan mengganti hasil Try Out aktif. Siswa dapat mencari hasil melalui halaman umum.</p>
 <button type="button" id="download" hidden>Unduh daftar tautan siswa</button>
 <button type="button" id="logout">Keluar</button>
 </form>
@@ -204,8 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const admin = location.hash === '#admin';
     el('student').hidden = admin;
     el('school').hidden = !admin;
-    el('studentGuide').hidden = Boolean(linkCode());
-    el('lookup').hidden = !linkCode();
+
     el('switch').href = admin ? '#siswa' : '#admin';
     el('switch').textContent = admin ? 'Pencarian siswa' : 'Admin Try Out';
     clearStudentResult();
@@ -240,13 +233,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const birth = parseBirth(el('birth').value);
     if (!birth) throw Error('Masukkan tanggal lahir yang valid dalam format dd/mm/yyyy.');
     const code = linkCode();
-    if (!code) throw Error('Buka tautan pribadi dari sekolah.');
-    const { data, error } = await db.rpc('find_tka_tryout_link', {
-      p_identity: el('identity').value.trim(), p_birth: birth, p_code: code
-    });
+    const criteria = { p_identity: el('identity').value.trim(), p_birth: birth };
+    if (code) criteria.p_code = code;
+    const { data, error } = await db.rpc(code ? 'find_tka_tryout_link' : 'find_tka_tryout_by_birth', criteria);
     if (current !== revision) return;
     if (error) throw error;
-    if (!data.length) throw Error('Hasil tidak ditemukan. Periksa nama, tanggal lahir, dan tautan dari sekolah.');
+    if (!data.length) throw Error('Hasil tidak ditemukan. Periksa tanggal lahir. Jika nama depan belum berhasil, gunakan nama lengkap.');
     const row = data[0];
     const title = document.createElement('h2');
     title.textContent = row.kelas ? row.nama + ' · ' + row.kelas : row.nama;

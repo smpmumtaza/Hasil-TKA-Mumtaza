@@ -40,20 +40,12 @@ a { color:#126047 }
 <header><img src="./images/logo.png" alt="">SMP Mumtaza Islamic School</header>
 <section>
 <h1>Hasil TKA</h1>
-<p>Portal nilai resmi SMP Mumtaza. Setelah verifikasi, Anda dapat melihat nilai dan predikat Bahasa Indonesia serta Matematika, lalu membuka PDF hasil TKA.</p>
-<div id="guide" hidden>
-  <h2>Cara melihat hasil</h2>
-  <ol>
-    <li>Buka tautan pribadi Hasil TKA yang diberikan sekolah.</li>
-    <li>Isi nama lengkap dan tanggal lahir sesuai data sekolah, lalu klik <strong>Lihat hasil</strong>.</li>
-  </ol>
-  <p>Jika belum menerima tautan, hubungi wali kelas. Simpan tautan untuk penggunaan pribadi.</p>
-</div>
-<form id="lookup" hidden>
-<label for="identity">Nama lengkap siswa</label>
+<p>Portal nilai resmi SMP Mumtaza. Setelah verifikasi, Anda dapat melihat nilai dan predikat Bahasa Indonesia serta Matematika,.</p>
+<form id="lookup">
+<label for="identity">Nama depan atau nama lengkap</label>
 <input id="identity" maxlength="200" autocomplete="off" required>
 <label for="birth">Tanggal lahir siswa</label>
-<input id="birth" type="date" autocomplete="off" aria-describedby="birth-help" required>
+<input id="birth" inputmode="numeric" placeholder="dd/mm/yyyy" maxlength="10" autocomplete="off" aria-describedby="birth-help" required>
 <p id="birth-help">Gunakan tanggal lahir yang tercatat di sekolah.</p>
 <button>Lihat hasil</button>
 <p class="status" id="lookup-status" role="status"></p>
@@ -101,11 +93,15 @@ document.addEventListener('DOMContentLoaded', () => {
     el('lookup').reset();
     const value = new URLSearchParams(location.hash.slice(1)).get('akses') || '';
     access = /^[a-f0-9]{32}$/.test(value) ? value : '';
-    el('guide').hidden = Boolean(access);
-    el('lookup').hidden = !access;
+
   }
 
-  for (const id of ['identity', 'birth']) el(id).addEventListener('input', clearResult);
+  el('identity').addEventListener('input', clearResult);
+  el('birth').addEventListener('input', () => {
+    clearResult();
+    const digits = el('birth').value.replace(/\D/g, '').slice(0, 8);
+    el('birth').value = [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4)].filter(Boolean).join('/');
+  });
   addEventListener('hashchange', showAccess);
   addEventListener('pageshow', showAccess);
   showAccess();
@@ -119,21 +115,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const button = el('lookup').querySelector('button');
     status.textContent = 'Memeriksa hasil…';
     button.disabled = true;
-    const criteria = { p_identity: el('identity').value.trim(), p_birth: el('birth').value, p_code: access };
     try {
-      if (!db || !access) throw Error();
-      const { data, error } = await db.rpc('find_tka_official', criteria);
+      const input = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(el('birth').value);
+      const birth = input ? input[3] + '-' + input[2] + '-' + input[1] : '';
+      const date = new Date(birth + 'T00:00:00Z');
+      if (!input || Number.isNaN(date.valueOf()) || date.toISOString().slice(0, 10) !== birth || date > new Date()) {
+        status.textContent = 'Masukkan tanggal lahir yang valid dalam format dd/mm/yyyy.';
+        return;
+      }
+      const criteria = { p_identity: el('identity').value.trim(), p_birth: birth };
+      if (access) criteria.p_code = access;
+      if (!db) throw Error();
+      const { data, error } = await db.rpc(access ? 'find_tka_official' : 'find_tka_official_by_birth', criteria);
       if (current !== revision) return;
       if (error) {
-        status.textContent = error.code === 'PGRST202' ? 'Pencarian hasil sedang disiapkan.' : 'Layanan sementara tidak tersedia.';
+        status.textContent = error.code === 'PT429' ? error.message : error.code === 'PGRST202' ? 'Pencarian hasil sedang disiapkan.' : 'Layanan sementara tidak tersedia.';
         return;
       }
       if (!data?.length) {
-        status.textContent = 'Hasil tidak ditemukan. Periksa nama lengkap, tanggal lahir, dan tautan dari sekolah.';
+        status.textContent = 'Hasil tidak ditemukan. Periksa tanggal lahir. Jika nama depan belum berhasil, gunakan nama lengkap.';
         return;
       }
       const row = data[0];
-      verified = criteria;
+      verified = access ? criteria : null;
+      el('send').hidden = !verified;
       const title = document.createElement('h2');
       title.textContent = row.nama;
       const scores = document.createElement('dl');
